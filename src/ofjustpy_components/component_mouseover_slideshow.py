@@ -3,7 +3,7 @@ from ofjustpy.ui_styles import sty
 from py_tailwind_utils import *
 from ofjustpy_engine import HC_Div_type_mixins as TR
 from ofjustpy.Div_TF import gen_Div_type
-from ofjustpy.TF_impl import HCType
+from ofjustpy_engine.HCType import HCType
 
 from ofjustpy.HC_wrappers import StackH_Aligned
 

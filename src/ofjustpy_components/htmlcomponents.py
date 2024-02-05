@@ -14,7 +14,6 @@ from py_tailwind_utils import (
     db,
     space,
     jc,
-    ovf,
     auto,
     full,
     hidden,

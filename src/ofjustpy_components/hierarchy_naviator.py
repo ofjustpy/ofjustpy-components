@@ -10,7 +10,7 @@ from ofjustpy.htmlcomponents_impl import assign_id
 from ofjustpy.SHC_types import PassiveComponents as PC, ActiveComponents as AC
 from py_tailwind_utils import *
 from ofjustpy_engine import HC_Div_type_mixins as TR
-from ofjustpy.TF_impl import HCType
+from ofjustpy_engine.HCType import HCType
 from ofjustpy.ui_styles import sty
 from ofjustpy import ui_styles
 from ofjustpy.Div_TF import gen_Div_type
@@ -23,7 +23,7 @@ from ofjustpy.HC_TF import gen_HC_type
 
 def on_childbtn_click(dbref, msg, target_of, hinav=None):
     hinav_shell = target_of(hinav)
-    hinav_shell.update_ui_on_child_select(dbref.text, target_of)
+    hinav_shell.update_ui_on_child_select(dbref.text, msg, target_of)
 
     pass
 
@@ -157,7 +157,7 @@ class HiNav_MutableShellMixin:
 
         pass
 
-    def update_ui_on_child_select(self, selected_child_label, target_of):
+    def update_ui_on_child_select(self, selected_child_label, msg, target_of):
         dval = dget(
             self.staticCore.hierarchy,
             "/" + "/".join([*self.show_path, selected_child_label]),
@@ -165,12 +165,12 @@ class HiNav_MutableShellMixin:
         if isinstance(dval, dict):
             terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
             self.unfold(selected_child_label, target_of)
-            self.staticCore.callback_child_selected(terminal_path)
+            self.staticCore.callback_child_selected(terminal_path, msg)
         else:
             terminal_path = (
                 f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
             )
-            self.staticCore.callback_child_selected(terminal_path)
+            self.staticCore.callback_child_selected(terminal_path, msg)
 
         pass
 
@@ -206,7 +206,7 @@ class HierarchyNavigator(HinavBaseType):
                     mr / y / 0,
                     noop / hidden,
                     bd / blue / 1,
-                    bt.bd,
+                    boxtopo.bd,
                     bd / blue / 4,
                     bd / 2,
                     bdr.xl,
@@ -226,7 +226,7 @@ class HierarchyNavigator(HinavBaseType):
                 key=f"btn{i}",
                 text=">",
                 value=i,
-                twsty_tags=[bg / pink / 1, bt.bd, bds.none, outline.none, mr / x / 1],
+                twsty_tags=[bg / pink / 1, boxtopo.bd, bds.none, outline.none, mr / x / 1],
                 on_click=lambda *args, hinav=self: on_arrow_click(*args, hinav),
             )
             for i in range(1, max_depth + 1)
@@ -245,7 +245,7 @@ class HierarchyNavigator(HinavBaseType):
                     mr / x / 0,
                     noop / hidden,
                     bg / pink / 1,
-                    bt.bd,
+                    boxtopo.bd,
                     bd / rose / 6,
                     bds.solid,
                     bd / 2,
