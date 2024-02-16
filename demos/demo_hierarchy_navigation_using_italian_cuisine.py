@@ -113,7 +113,7 @@ italian_cuisine_hierarchy = json.loads("""
 """
 )
 
-def terminal_node_callback(spath):
+def terminal_node_callback(spath, msg):
     print ('terminal node selected', spath)
     pass
 

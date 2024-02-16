@@ -226,7 +226,7 @@ class HierarchyNavigator(HinavBaseType):
                 key=f"btn{i}",
                 text=">",
                 value=i,
-                twsty_tags=[bg / pink / 1, boxtopo.bd, bds.none, outline.none, mr / x / 1],
+                twsty_tags=[bg / pink / 1, boxtopo.bd, bds.none, outlinesty.none, mr / x / 1],
                 on_click=lambda *args, hinav=self: on_arrow_click(*args, hinav),
             )
             for i in range(1, max_depth + 1)

@@ -7,12 +7,22 @@ import ofjustpy as oj
 from addict_tracking_changes import Dict
 import ofjustpy_components as ojx
 import itertools
+import macropy.activate
+import with_hyperui
+
+
 
 app = oj.load_app()
 def on_btn_click(dbref,msg):
     pass
 
-items = [oj.PC.Span(text=f"item {i}") for i in range(40 * 20)]
+#items = [oj.PC.Span(text=f"item {i}") for i in range(40 * 20)]
+
+items  = [with_hyperui.demo_testimonial(i) for i in range(10 * 6)]
+#items = [with_hyperui.demo_testimonial() for i in range(40 * 8)]
+xx = with_hyperui.GridUSP()
+
+    
 def page_container_gen(cid, childs, **pkwargs):
     hc_types = Dict()
     hc_types.part_viewer = lambda **kwargs: oj.PC.StackV(**kwargs)
@@ -20,16 +30,15 @@ def page_container_gen(cid, childs, **pkwargs):
     return ojx.BiSplitView(childs, hc_types, **pkwargs)
 
     
-paginate = ojx.Paginate("mypaginate", items, page_container_gen,  num_pages=20, chunk_size=40)
+paginate = ojx.Paginate("mypaginate", items, page_container_gen,  num_pages=10, chunk_size=6, twsty_tags=[mr/4])
 
 paginate_container = oj.Mutable.Container(key = "paginate_container",
                                           childs = [paginate],
-                                          twsty_tags=[H/64]
+                                          twsty_tags=[]
                                           )
 
-
 wp_endpoint = oj.create_endpoint(key="paginate",
-                                    childs = [paginate_container
+                                    childs = [paginate_container,
                                               ],
                                     title="Paginate"
                                     )

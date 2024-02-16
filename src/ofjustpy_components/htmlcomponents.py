@@ -44,12 +44,13 @@ from ofjustpy.htmlcomponents import (
     HCCMutable,
     ActiveComponents as AC,
     PassiveComponents as PC,
+    ActiveDivs as AD,
     HCCStatic,
 )
 
 from ofjustpy.HC_wrappers import Halign
 import itertools
-
+from ofjustpy.icons import Icon_Cross, Icon_Minus
 
 def EnumSelector(key, enumtype, **kwargs):
     enumselect = AC.Select(
@@ -63,8 +64,8 @@ def EnumSelector(key, enumtype, **kwargs):
 def BiSplitView(childs: List, hc_types, twsty_tags=[], **kwargs):
     """
     hc_types needs fields
-    - part_viewer : component to control how a page is to be generated
-    - full_viewer: to control how the pages are to be stacked
+    - part_viewer : component to control how each part of the spilt is
+    - full_viewer: to control how the parts are to be stacked
 
 
     """
@@ -132,6 +133,7 @@ def Paginate(
             key=f"{key}_selector",
             num_iter=range(len(page_containers)),
             on_click=on_page_select,
+            twsty_tags = []
         ),
         content_type="mutable",
     )
@@ -146,7 +148,8 @@ def Paginate(
 
 def on_undock_click(undock_btn, msg, target_of, dockbar=None):
     # undock the target; make it visible
-    dock_shell = target_of(dockbar.wrapped_components[msg.value])
+    #dock_shell = target_of(dockbar.wrapped_components[msg.value])
+    dock_shell = target_of(dockbar.wrapped_components[undock_btn.value])
     dock_shell.remove_twsty_tags(noop/hidden)
 
     # disable the undock_btn
@@ -158,7 +161,10 @@ def on_undock_click(undock_btn, msg, target_of, dockbar=None):
 
 def on_dock_click(dock_btn, msg, target_of, dockbar=None):
     key = dock_btn.value
-    dock_shell = target_of(dockbar.wrapped_components[msg.value])
+    print("Dock btn clicked with msg.value = :", msg.value)
+    
+    #dock_shell = target_of(dockbar.wrapped_components[msg.value])
+    dock_shell = target_of(dockbar.wrapped_components[dock_btn.value])
     dock_shell.add_twsty_tags(noop/hidden)
     shell_undock_btn = target_of(dockbar.undock_btns[key])
     # print("dock it: changes on undock button: ",  type(shell_undock_btn.domDict), " ", type(shell_undock_btn.attrs))
@@ -213,7 +219,7 @@ UndockButton = assign_id(
         HCType.mutable,
         "Button",
         TR.ButtonMixin,
-        stytags_getter_func=lambda m=ui_styles: m.sty.button,
+        stytags_getter_func=lambda m=ui_styles: m.sty.undock_button,
         mutableShellMixins = [UndockButtonMixin, TR.TwStyMixin],
         mutableShell_addonMixins=[
             mutable_TF_mixins.StaticCoreSharer_ValueMixin,
@@ -236,9 +242,9 @@ class Dockbar:
         undock_btn_sty = kwargs.get(
             "undock_btn_sty",
             [
-                shadow.xl,
-                bg / cyan / 5,
-                shadow / cyan / "500/50",
+                #shadow.xl,
+                #bg / cyan / 5,
+                #shadow / cyan / "500/50",
                 *variant(
                     bg / gray / 4,
                     fc / slate / 5,
@@ -269,13 +275,16 @@ class Dockbar:
                 on_click=undockit_handler,
             )
 
-            dock_btn = AC.Button(
-                key=f"dock_{key}",
-                text="-",
-                value=key,
-                twsty_tags=[bg / pink / 1, W / 6, H / 6, top / 1, right / 1, absolute],
-                on_click=dockit_handler,
-            )
+            # dock_btn = AC.Button(
+            #     key=f"dock_{key}",
+            #     text="-",
+            #     value=key,
+            #     twsty_tags=[bg / pink / 1, W / 6, H / 6, top / 1, right / 1, absolute],
+            #     on_click=dockit_handler,
+            # )
+            with oj.TwStyCtx("un"):
+                dock_btn = AD.Button(key=f"dock_{key}", twsty_tags=[W/5, H/2, bg/rose/9, top / 1, right / 1, absolute], value=key,  on_click=dockit_handler)
+                
             wrapped_component = wdiv_type(
                 key=f"wrap_{key}", childs=[di, dock_btn], twsty_tags=[ppos.relative]
             )
