@@ -50,7 +50,6 @@ from ofjustpy.htmlcomponents import (
 
 from ofjustpy.HC_wrappers import Halign
 import itertools
-from ofjustpy.icons import Icon_Cross, Icon_Minus
 
 def EnumSelector(key, enumtype, **kwargs):
     enumselect = AC.Select(
@@ -69,7 +68,7 @@ def BiSplitView(childs: List, hc_types, twsty_tags=[], **kwargs):
 
 
     """
-    bg_colors = [bg / slate / 1, bg / rose / 1]
+    bg_colors = [bg / slate / 100, bg / rose / 100]
     idx = 0
     parts = [[], []]
     for _ in childs:
@@ -246,9 +245,9 @@ class Dockbar:
                 #bg / cyan / 5,
                 #shadow / cyan / "500/50",
                 *variant(
-                    bg / gray / 4,
-                    fc / slate / 5,
-                    bd / slate / 2,
+                    bg / gray / 400,
+                    fc / slate / 500,
+                    bd / slate / 200,
                     shadow.none,
                     rv="disabled",
                 ),
@@ -282,8 +281,8 @@ class Dockbar:
             #     twsty_tags=[bg / pink / 1, W / 6, H / 6, top / 1, right / 1, absolute],
             #     on_click=dockit_handler,
             # )
-            with oj.TwStyCtx("un"):
-                dock_btn = AD.Button(key=f"dock_{key}", twsty_tags=[W/5, H/2, bg/rose/9, top / 1, right / 1, absolute], value=key,  on_click=dockit_handler)
+            with oj.TwStyCtx(oj.ui_styles.un):
+                dock_btn = AD.Button(key=f"dock_{key}", twsty_tags=[W/5, H/2, bg/rose/900, top / 1, right / 1, noop/absolute], value=key,  on_click=dockit_handler)
                 
             wrapped_component = wdiv_type(
                 key=f"wrap_{key}", childs=[di, dock_btn], twsty_tags=[ppos.relative]

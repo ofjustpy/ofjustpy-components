@@ -22,16 +22,24 @@ from ofjustpy.HC_TF import gen_HC_type
 
 
 def on_childbtn_click(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
     hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
     hinav_shell.update_ui_on_child_select(dbref.text, msg, target_of)
 
     pass
 
 
 def on_arrow_click(dbref, msg, target_of, hinav=None):
+    """
+    marker on the breadcrumb trail is clicked.
+    fold the breadcrumb trail to the marker
+    """
     hinav_shell = target_of(hinav)
 
-    # hinav_shell.arrow_pos = dbref.value
     hinav_shell.fold(dbref.value, target_of)
     pass
 
@@ -61,7 +69,7 @@ ChildSlotBtn_HCType = assign_id(
         "Button",
         TR.SpanMixin,
         staticCoreMixins=[],
-        mutableShellMixins=[TR.TwStyMixin, TR.HCTextMixin, ValueMixin],
+        mutableShellMixins=[TR.TwStyMixin, TR.HCTextMixin, ValueMixin], # value, style, and text : all is mutable
         stytags_getter_func=lambda m=ui_styles: m.sty.span,
     )
 )
@@ -92,7 +100,7 @@ class HiNav_MutableShellMixin:
 
         # make the root open
         step_shell = dget(
-            session_manager.stubStore, self.staticCore.steps[0].id
+            session_manager.stubStore, self.staticCore.breadcrumb_panel.get_step_at_idx(0).id
         ).target  # target_of(self.staticCore.steps[0])
         step_shell.remove_twsty_tags(noop / hidden)  # root is always open
         self.update_child_panel(target_of)
@@ -128,7 +136,8 @@ class HiNav_MutableShellMixin:
         show_depth = self.show_depth
 
         for i in range(show_depth, fold_idx, -1):
-            stepi = self.staticCore.steps[i - 1]
+            #stepi = self.staticCore.steps[i - 1]
+            stepi = self.staticCore.breadcrumb_panel.get_step_at_idx(i-1)
             stepi_shell = target_of(stepi)
             stepi_shell.add_twsty_tags(noop / hidden)
             self.show_path.pop()
@@ -144,13 +153,13 @@ class HiNav_MutableShellMixin:
             print("already at max_depth")
             return
 
-        step_last = self.staticCore.steps[self.show_depth]
+        step_last = self.staticCore.breadcrumb_panel.get_step_at_idx(self.show_depth)
         step_shell = target_of(step_last)
         step_shell.remove_twsty_tags(noop / hidden)
         step_shell.add_twsty_tags(db.f)  # When hiding flex get taken out
         # eop: end-of-path
-        eop_shell = target_of(self.staticCore.labels[self.show_depth])
-        eop_shell.text = child_label
+        self.staticCore.breadcrumb_panel.update_step_text(self.show_depth, child_label, target_of)
+
         self.show_depth += 1
         self.show_path.append(child_label)
         self.update_child_panel(target_of)
@@ -179,83 +188,141 @@ HinavBaseType = gen_Div_type(
     HCType.mutable, "Div", TR.DivMixin, mutable_shell_mixins=[HiNav_MutableShellMixin]
 )
 
+class ui_breadcrumb_panel(oj.HCCMutable.StackH):
 
-class HierarchyNavigator(HinavBaseType):
-    def __init__(
-        self,
-        hierarchy,
-        callback_child_selected,
-        max_childs=20,
-        max_depth=6,
-        *args,
-        **kwargs,
-    ):
-        # TODO: Don't use MButton; use custom button type where both twsty and text is mutable
-        self.max_child = max_childs
-        self.max_depth = max_depth
-        self.hierarchy = hierarchy
-
-        self.callback_child_selected = callback_child_selected
-        self.childslots = [
-            ChildSlotBtn_HCType(
-                key=f"cbtn{i}",
-                text=str(i),
-                value=i,
-                twsty_tags=[
-                    pd / 0,
-                    mr / y / 0,
-                    noop / hidden,
-                    bd / blue / 1,
-                    boxtopo.bd,
-                    bd / blue / 4,
-                    bd / 2,
-                    bdr.xl,
-                ],
-                on_click=lambda *args, hinav=self: on_childbtn_click(*args, hinav),
-            )
-            for i in range(max_childs)
-        ]
-
-        self.childpanel = oj.HCCMutable.StackV(  # key="childpanel",
-            childs=self.childslots, twsty_tags=[max / W / "md", space / y / 1]
-        )
-
-        # arrows:
+    def __init__(self, num_steps, on_click_eh):
         self.arrows = [
             oj.AC.Button(
                 key=f"btn{i}",
                 text=">",
                 value=i,
-                twsty_tags=[bg / pink / 1, boxtopo.bd, bds.none, outlinesty.none, mr / x / 1],
-                on_click=lambda *args, hinav=self: on_arrow_click(*args, hinav),
+                twsty_tags=[bg / pink / 100, boxtopo.bd, bds.none, outlinesty.none, mr / x / 1],
+                on_click=on_click_eh
             )
-            for i in range(1, max_depth + 1)
+            for i in range(1, num_steps + 1)
         ]
-
         self.labels = [
             ArrowSpan_HCType(key=f"label{i}", text="", twsty_tags=[mr / x / 0])
-            for i in range(max_depth)
+            for i in range(num_steps)
         ]
-
         self.steps = [
             oj.Mutable.StackH(
-                key=f"item{i}",
-                childs=[self.labels[i], self.arrows[i]],
+                key=f"item{idx}",
+                childs=[self.labels[idx], self.arrows[idx]],
                 twsty_tags=[
-                    mr / x / 0,
-                    noop / hidden,
-                    bg / pink / 1,
-                    boxtopo.bd,
-                    bd / rose / 6,
-                    bds.solid,
-                    bd / 2,
-                    bdr.xl2,
-                ],
-            )
-            for i in range(max_depth)
+                mr / x / 0,
+                noop / hidden,
+                bg / pink / 100,
+                boxtopo.bd,
+                bd / rose / 600,
+                bds.solid,
+                bd / 2,
+                bdr.xl2,
+                pd/2
+            ],
+        )
+            for idx in range(num_steps)
         ]
 
-        super().__init__(*args, childs=[], **kwargs)
+        super().__init__(childs = self.steps)
+        pass
+    
+    def get_step_at_idx(self, idx):
+        return self.steps[idx]
+    
+    def update_step_text(self, idx, label_text, to_ms):
+        label = self.labels[idx]
+        label_ms = to_ms(label)
+        label_ms.text = label_text
 
 
-HierarchyNavigator = assign_id(HierarchyNavigator)
+class DefaultChildPanel:
+
+    def __init__(self):
+        pass
+    
+def get_HierarchyNavigatorClass(breadcrumb_panel_type, childpanel_type):        
+    class HierarchyNavigator(HinavBaseType):
+        def __init__(self,
+                     hierarchy,
+                     callback_child_selected,
+                     max_childs=20,
+                     max_depth=6,
+                     *args,
+                     **kwargs,
+                     ):
+            # TODO: Don't use MButton; use custom button type where both twsty and text is mutable
+            self.max_child = max_childs
+            self.max_depth = max_depth
+            self.hierarchy = hierarchy
+
+            self.callback_child_selected = callback_child_selected
+            # self.childslots = [
+            #     ChildSlotBtn_HCType(
+            #         key=f"cbtn{i}",
+            #         text=str(i),
+            #         value=i,
+            #         twsty_tags=[
+            #             pd / 2,
+            #             mr / y / 0,
+            #             noop / hidden,
+            #             bd / blue / 100,
+            #             boxtopo.bd,
+            #             *hover(bd / gray / 400),
+            #             bd / 2,
+            #             bdr.md,
+            #             jc.center,
+            #             db.f,
+            #             ff.mono,
+            #             fz.lg,
+            #             fw.medium,
+
+            #         ],
+            #         on_click=lambda *args, hinav=self: on_childbtn_click(*args, hinav),
+            #     )
+            #     for i in range(max_childs)
+            # ]
+            self.childpanel = childpanel_type()
+
+            # self.childpanel = oj.HCCMutable.StackV(  # key="childpanel",
+            #     childs=self.childslots, twsty_tags=[max / W / "md", space / y / 2]
+            # )
+
+            # arrows:
+            # self.arrows = [
+            #     oj.AC.Button(
+            #         key=f"btn{i}",
+            #         text=">",
+            #         value=i,
+            #         twsty_tags=[bg / pink / 1, boxtopo.bd, bds.none, outlinesty.none, mr / x / 1],
+            #         on_click=lambda *args, hinav=self: on_arrow_click(*args, hinav),
+            #     )
+            #     for i in range(1, max_depth + 1)
+            # ]
+
+
+            # self.labels = [
+            #     ArrowSpan_HCType(key=f"label{i}", text="", twsty_tags=[mr / x / 0])
+            #     for i in range(max_depth)
+            # ]
+
+
+
+            self.breadcrumb_panel = ui_breadcrumb_panel(max_depth, lambda *args, hinav=self: on_arrow_click(*args, hinav))
+
+
+
+            # self.steps = [
+            #     build_ui_breadcrumb_step(i) 
+            #     for i in range(max_depth)
+            # ]
+
+            # for _ in self.steps:
+            #     _.on('click', lambda *args, hinav=self: on_arrow_click(*args, hinav))
+
+
+            super().__init__(*args, childs=[], **kwargs)
+
+
+    HierarchyNavigator = assign_id(HierarchyNavigator)
+    return HierarchyNavigator

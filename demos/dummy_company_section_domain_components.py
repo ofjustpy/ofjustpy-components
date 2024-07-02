@@ -24,7 +24,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="techonology_solutions", classes='flex items-start gap-4') as tech_solutions_box:
             with Span(classes="shrink-0 rounded-lg bg-gray-800 p-4"):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -37,7 +44,14 @@ def info_cards():
     with writer_ctx:            
         with Div(key="financial_services", classes='flex items-start gap-4') as financial_services_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
             with Div():
                 with H2(classes='text-lg font-bold', text="Financial Services:"):
@@ -49,7 +63,14 @@ def info_cards():
     with writer_ctx:                            
         with Div(key="healthcare_innovations", classes='flex items-start gap-4') as healthcare_innovations_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -63,7 +84,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="green_energy", classes='flex items-start gap-4') as green_energy_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -78,7 +106,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="retail_consumer", classes='flex items-start gap-4') as retail_consumer_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -93,7 +128,14 @@ def info_cards():
     with writer_ctx:
         with Div(key = "transport_and_logistics", classes='flex items-start gap-4') as transport_and_logistics_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -108,7 +150,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="real_estate", classes='flex items-start gap-4') as real_estate_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -123,7 +172,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="digital_marketing", classes='flex items-start gap-4') as digital_marketing_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -137,7 +193,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="education_training", classes='flex items-start gap-4') as education_training_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -151,7 +214,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="entertainment_and_media", classes='flex items-start gap-4') as entertainment_and_media_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():
@@ -166,7 +236,14 @@ def info_cards():
     with writer_ctx:
         with Div(key="food_and_beverage", classes='flex items-start gap-4') as food_and_beverage_box:
             with Span(classes='shrink-0 rounded-lg bg-gray-800 p-4'):
-                with Icon_Degree():
+                with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                     pass
 
             with Div():

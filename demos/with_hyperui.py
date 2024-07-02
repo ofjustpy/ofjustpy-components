@@ -37,7 +37,14 @@ def GridUSP():
                 with Div(classes='mt-8 grid grid-cols-1 gap-8 md:mt-16 md:grid-cols-2 md:gap-12 lg:grid-cols-3'):
                     with Div(classes='flex items-start gap-4'):
                         with Span(classes="shrink-0 rounded-lg bg-gray-800 p-4"):
-                            with Icon_Degree():
+                            with FontAwesomeIcon(label="faGraduationSchool",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="school",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                 pass
 
                         with Div():
@@ -59,22 +66,64 @@ def demo_testimonial(idx):
                     ):
                         with Div():
                             with Div(classes='flex gap-0.5 text-green-500'):
-                                with Icon_Rated():
+                                with FontAwesomeIcon(label="faStar",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="star",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                     pass
 
-                                with Icon_Rated():
+                                with FontAwesomeIcon(label="faStar",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="star",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                     pass
 
-                                with Icon_Rated():
+                                with FontAwesomeIcon(label="faStar",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="star",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                     pass
 
-                                with Icon_Rated():
+                                with FontAwesomeIcon(label="faStar",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="star",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                     pass
 
-                                with Icon_Rated():
+                                with FontAwesomeIcon(label="faStar",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="star",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                     pass
 
-                                with Icon_Rated():
+                                with FontAwesomeIcon(label="faStar",
+                                         size="1x", 
+                                         fixedWidth=True,
+                                         fa_group="regular",
+                                         mdi_label="star",
+                                         classes="w-5 h-5",
+                            
+                                 ):
                                     pass                                            
 
 
