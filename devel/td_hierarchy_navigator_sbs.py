@@ -113,34 +113,41 @@ class ChildsPanel(oj.HCCMutable.Div):
         """
         event handler when childslot is clicked
         """
+
+        
         self.childslots = [
                 ChildSlotBtn_HCType(
                     key=f"cbtn{i}",
                     text=str(i),
                     value=i,
-                    twsty_tags=[
-                        pd / 2,
-                        mr / y / 0,
-                        noop / hidden,
-                        bd / blue / 100,
-                        boxtopo.bd,
-                        *hover(bd / gray / 400),
-                        bd / 2,
-                        bdr.md,
-                        jc.center,
-                        db.f,
-                        ff.mono,
-                        fz.lg,
-                        fw.medium,
-
-                    ],
+                    classes="rounded-lg border border-2 border-indigo-500/50 px-4 py-1 text-sm font-medium text-indigo-500 uppercase leading-normal hover:bg-gradient-to-bl hover:from-gray-200 hover:to-gray-200 hover:via-gray-100/50 w-52 overflow-x-auto shadow shadow-indigo-200  hover:shadow-md hower:shadow-indigo-300 focus:bg-gradient-to-bl focus:border-indigo-500/50 focus:border",
+                    
+                    
+                    # twsty_tags=[
+                    #     db.f,
+                    #     ji.center,
+                    #     gap/2,
+                    #     bd/blue/500,
+                    #     bg/blue/50,
+                    #     pd/y/3,
+                    #     pd/x/4,
+                    #     fc/blue/700
+                        
+                    # ],
+                    extra_classes="border-s-[3px]",
+                    
                     on_click=on_child_slot_clicked #lambda *args, hinav=self: on_childbtn_click(*args, hinav),
                 )
                 for i in range(max_childs)
             ]
-    
-        super().__init__(childs = self.childslots,
-                         twsty_tags = [max / W / "md", space / y / 2]
+
+        menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
+        
+
+            
+        super().__init__(childs = [menu_box],
+                         classes = "flex overflow-y-auto w-80 h-screen flex-col justify-between border-e bg-white"
+                         #twsty_tags = [max / W / "md", space / y / 2]
                          
                          )
         
@@ -285,12 +292,13 @@ hn = HierarchyNavigator(italian_cuisine_hierarchy,
                                  )
 wp_endpoint = oj.create_endpoint(key="hinav",
                               childs = [hn.breadcrumb_panel,
-                                        oj.Halign(hn.childpanel, content_type="mutable"),
+                                        hn.childpanel,
                                    
                                         hn
                                         ],
                               title="Ofjustpy navigator cuisine",
-                              twsty_tags=[space/y/4]
+                                 twsty_tags=[space/y/4],
+                                 head_html="""<script src="https://cdn.tailwindcss.com"></script>"""
 
                               )
 

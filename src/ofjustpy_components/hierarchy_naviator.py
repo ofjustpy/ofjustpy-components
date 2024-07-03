@@ -44,35 +44,8 @@ def on_arrow_click(dbref, msg, target_of, hinav=None):
     pass
 
 
-class ValueMixin:
-    attr_tracked_keys = []
-    domDict_tracked_keys = []
-    def __init__(self, *args, **kwargs):
-        assert "value" in kwargs
-        self.value = kwargs.get("value")
-        
 
-ArrowSpan_HCType = assign_id(
-    gen_HC_type(
-        HCType.mutable,
-        "Span",
-        TR.SpanMixin,
-        staticCoreMixins=[TR.TwStyMixin],
-        mutableShellMixins=[TR.HCTextMixin],
-        stytags_getter_func=lambda m=ui_styles: m.sty.span,
-    )
-)
 
-ChildSlotBtn_HCType = assign_id(
-    gen_HC_type(
-        HCType.mutable,
-        "Button",
-        TR.SpanMixin,
-        staticCoreMixins=[],
-        mutableShellMixins=[TR.TwStyMixin, TR.HCTextMixin, ValueMixin], # value, style, and text : all is mutable
-        stytags_getter_func=lambda m=ui_styles: m.sty.span,
-    )
-)
 
 
 class HiNav_MutableShellMixin:
@@ -115,15 +88,17 @@ class HiNav_MutableShellMixin:
 
     def fold(self, fold_idx, target_of):
         show_depth = self.show_depth
-
+        print ("fold up to fold idx = ", fold_idx)
+        
         for i in range(show_depth, fold_idx, -1):
-            #stepi = self.staticCore.steps[i - 1]
+
             stepi = self.staticCore.breadcrumb_panel.get_step_at_idx(i-1)
             stepi_shell = target_of(stepi)
             stepi_shell.add_twsty_tags(noop / hidden)
             self.show_path.pop()
             self.show_depth = self.show_depth - 1
-            print("show path after fold = ", self.show_path, " ", self.show_depth)
+        
+
         self.update_child_panel(target_of)
 
         pass
@@ -169,59 +144,9 @@ HinavBaseType = gen_Div_type(
     HCType.mutable, "Div", TR.DivMixin, mutable_shell_mixins=[HiNav_MutableShellMixin]
 )
 
-class ui_breadcrumb_panel(oj.HCCMutable.StackH):
-
-    def __init__(self, num_steps, on_click_eh):
-        self.arrows = [
-            oj.AC.Button(
-                key=f"btn{i}",
-                text=">",
-                value=i,
-                twsty_tags=[bg / pink / 100, boxtopo.bd, bds.none, outlinesty.none, mr / x / 1],
-                on_click=on_click_eh
-            )
-            for i in range(1, num_steps + 1)
-        ]
-        self.labels = [
-            ArrowSpan_HCType(key=f"label{i}", text="", twsty_tags=[mr / x / 0])
-            for i in range(num_steps)
-        ]
-        self.steps = [
-            oj.Mutable.StackH(
-                key=f"item{idx}",
-                childs=[self.labels[idx], self.arrows[idx]],
-                twsty_tags=[
-                mr / x / 0,
-                noop / hidden,
-                bg / pink / 100,
-                boxtopo.bd,
-                bd / rose / 600,
-                bds.solid,
-                bd / 2,
-                bdr.xl2,
-                pd/2
-            ],
-        )
-            for idx in range(num_steps)
-        ]
-
-        super().__init__(childs = self.steps)
-        pass
-    
-    def get_step_at_idx(self, idx):
-        return self.steps[idx]
-    
-    def update_step_text(self, idx, label_text, to_ms):
-        label = self.labels[idx]
-        label_ms = to_ms(label)
-        label_ms.text = label_text
 
 
-class DefaultChildPanel:
 
-    def __init__(self):
-        pass
-    
 def HierarchyNavigator_TF(breadcrumb_panel_type, childpanel_type):
     """
     TF: class factory akin to template parametrization and specialization
