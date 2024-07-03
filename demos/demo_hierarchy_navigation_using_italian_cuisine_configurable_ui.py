@@ -138,13 +138,15 @@ def BaseWithHighlightedActiveLink():
     comp_box = oj.HCCMutable.Ul()
 
     def add_item(text):
-        oj.HCCMutable.Li(childs= [oj.Mutable.Button(classes="flex items-center gap-2 border-s-[3px] border-blue-500 bg-blue-50 px-4 py-3 text-blue-700", childs = [oj.PD.Span(classes="text-sm font-medium", text=text)
+        item = oj.HCCMutable.Li(childs= [oj.Mutable.Button(classes="flex items-center gap-2  border-blue-500 bg-blue-50 px-4 py-3 text-blue-700", extra_classes="border-s-[3px]",
+                                                    childs = [oj.PD.Span(classes="text-sm font-medium", text=text)
 
-            ]
+                                                              ]
 
-                                    )
-                          ]
-                 )
+                                                    )
+                                  ]
+                         )
+        comp_box.childs.append(item)
         
     comp_box.add_item = add_item
     return comp_box
