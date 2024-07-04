@@ -89,7 +89,8 @@ wp_endpoint = oj.create_endpoint(key="dock_undock",
                                     childs = [
                                               grid_usp
                                               ],
-                                    title="Docking/Undocking"
+                                    title="Docking/Undocking",
+                                 head_html="""<script src="https://cdn.tailwindcss.com"></script>"""
                                     )
 
 oj.add_jproute("/", wp_endpoint)
