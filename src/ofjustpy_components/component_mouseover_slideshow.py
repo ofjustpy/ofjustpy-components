@@ -75,7 +75,8 @@ class SlideShow(SlideShowBase):
                     bd / gray / 300,
                     boxtopo.bd,
                     fw.medium,
-                    *build_gradient_expr(gray / 200, gray / 200, gray / 100),
+                    *hover(*build_gradient_expr(pink / 200, pink / 200, gray / 50)),
+                    *build_gradient_expr(pink / 100, pink / 100, gray / 50),
                     shadow / gray / 200,
                     shadow.md,
                 ],
@@ -94,9 +95,10 @@ class SlideShow(SlideShowBase):
             childs=doorcards,
             twsty_tags=[
                 W / "1/2",
+                gap/2,
                 *variant(G / cols / 1, rv="sm"),
-                *variant(G / cols / 2, rv="md"),
-                *variant(G / cols / 3, rv="lg"),
+                *variant(G / cols / 2, gap/2, rv="md"),
+                *variant(G / cols / 3, gap/3, rv="lg"),
             ],
         )
 

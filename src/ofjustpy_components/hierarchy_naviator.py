@@ -154,7 +154,7 @@ class ChildsPanel(oj.HCCMutable.Div):
 
             
         super().__init__(childs = [menu_box],
-                         classes = "flex overflow-y-auto w-80 h-screen flex-col justify-between border-e bg-white"
+                         classes = "flex overflow-y-auto min-w-fit h-screen flex-col justify-between border-e bg-white"
                          #twsty_tags = [max / W / "md", space / y / 2]
                          
                          )

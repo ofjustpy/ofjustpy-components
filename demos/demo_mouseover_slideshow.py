@@ -79,7 +79,8 @@ slideShow = ojx.SlideShow("demo_slideshow",
 
 wp_endpoint = oj.create_endpoint(key="demo_slideshow",
                           childs = [slideShow],
-                        title="Mouseover slideshow"
+                                 title="Mouseover slideshow",
+                                 csr_bundle_dir="hyperui"
                         )
 
 oj.add_jproute("/", wp_endpoint)
