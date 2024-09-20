@@ -111,7 +111,7 @@ class SlideShow(SlideShowBase):
 
         # flx.one because we want both left and right div to expand and occupy
         # equal space
-        twsty_tags = conc_twtags(*sty.stackh, *kwargs.pop("twsty_tags", []), flx.one)
+        twsty_tags = conc_twtags(*sty.stackh, *kwargs.pop("twsty_tags", []), flxrsz.one)
 
         # super().__init__(*args, key=key,
         #                  childs=[StackH_Aligned(doorcards_panel, content_type="mutable"),

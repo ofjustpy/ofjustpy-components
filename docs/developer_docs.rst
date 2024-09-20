@@ -51,7 +51,10 @@ HierarchyNavigator
       shell = target_of(cs)
       shell.add_twsty_tags(noop / hidden)
 
-  
+#. callback_child_selected is being turned into async corutine
+   - its part of ojr.ReactDomino chain which needs to be async
+     
+
 
 Code layout
 ^^^^^^^^^^^^

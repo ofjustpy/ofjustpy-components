@@ -31,7 +31,7 @@ from py_tailwind_utils import (
     H,
     top,
     right,
-    absolute,
+    ppos,
     hidden,
     db,
     ppos,
@@ -282,7 +282,7 @@ class Dockbar:
             #     on_click=dockit_handler,
             # )
             with oj.TwStyCtx(oj.ui_styles.un):
-                dock_btn = AD.Button(key=f"dock_{key}", twsty_tags=[W/3, H/1, bg/rose/500, top / 1, right / 1, noop/absolute], value=key,  on_click=dockit_handler)
+                dock_btn = AD.Button(key=f"dock_{key}", twsty_tags=[W/3, H/1, bg/rose/500, top / 1, right / 1, ppos.absolute], value=key,  on_click=dockit_handler)
                 
             wrapped_component = wdiv_type(
                 key=f"wrap_{key}", childs=[di, dock_btn], twsty_tags=[ppos.relative]
