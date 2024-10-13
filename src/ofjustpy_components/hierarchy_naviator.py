@@ -402,9 +402,7 @@ class HiNav_MutableShellMixin:
 
     async def update_ui_on_child_mouseenter(self, selected_child_dbref, msg, target_of):
         selected_child_label = selected_child_dbref.text
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-              selected_child_dbref.domDict, " ", selected_child_dbref.attrs, " ", "---", selected_child_label, "---"
-              )
+
         
         dval = dget(
             self.staticCore.hierarchy,
