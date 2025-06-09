@@ -3,7 +3,7 @@
 from addict_tracking_changes import Dict
 import ofjustpy as oj
 from py_tailwind_utils import *
-from ofjustpy_components.hierarchy_naviator_refactored_try2 import HierarchyNavigator_TF, BaseChildsPanelMixin
+from ofjustpy_components.hierarchy_naviator_refactored_try3 import HierarchyNavigator_TF, BaseChildsPanelMixin
 import json
 from ofjustpy.htmlcomponents_impl import assign_id
 from ofjustpy.SHC_types import PassiveComponents as PC, ActiveComponents as AC
@@ -15,112 +15,6 @@ from ofjustpy import ui_styles
 from ofjustpy.Div_TF import gen_Div_type
 from ofjustpy.HC_TF import gen_HC_type
 app = oj.load_app()
-italian_cuisine_hierarchy = json.loads("""
-{
-    "Cuisine: Italian": {
-        "Regions": {
-            "Northern Italian cuisine": {
-                "Dishes": {
-                    "Risotto alla Milanese": {
-                        "Ingredients": {
-                            "Arborio rice": 1,
-                            "Saffron": 1,
-                            "Parmesan cheese": 1,
-                            "Chicken stock": 1
-                        },
-                        "Techniques": {
-                            "Toasting rice": 1,
-                            "Adding saffron": 1,
-                            "Gradually adding stock": 1,
-                            "Finishing with Parmesan cheese": 1
-                        },
-                        "Utensils": {
-                            "Risotto pan": 1,
-                            "Wooden spoon": 1
-                        }
-                    },
-                    "Osso Buco": 1,
-                    "Polenta": 1,
-                    "Tiramisu": 1
-                }
-            },
-            "Central Italian cuisine": {
-                "Dishes": {
-                    "Spaghetti alla Carbonara": {
-                        "Ingredients": {
-                            "Spaghetti pasta": 1,
-                            "Pancetta": 1,
-                            "Eggs": 1,
-                            "Pecorino Romano cheese": 1
-                        },
-                        "Techniques": {
-                            "Cooking pasta al dente": 1,
-                            "Making the sauce with eggs and cheese": 1,
-                            "Crisping pancetta": 1
-                        },
-                        "Utensils": {
-                            "Large pot for boiling pasta": 1,
-                            "Skillet for cooking pancetta and making sauce": 1
-                        }
-                    },
-                    "Fettuccine Alfredo": 1,
-                    "Bistecca alla Fiorentina": 1,
-                    "Panzanella": 1
-                }
-            },
-            "Southern Italian cuisine": {
-                "Dishes": {
-                    "Pizza Margherita": {
-                        "Ingredients": {
-                            "Pizza dough": 1,
-                            "Tomatoes": 1,
-                            "Mozzarella cheese": 1,
-                            "Basil": 1
-                        },
-                        "Techniques": {
-                            "Stretching and shaping the dough": 1,
-                            "Making tomato sauce": 1,
-                            "Topping with cheese and basil": 1
-                        },
-                        "Utensils": {
-                            "Pizza stone or baking sheet": 1,
-                            "Pizza peel": 1
-                        }
-                    },
-                    "Pasta alla Puttanesca": {
-                        "Ingredients": {
-                            "Spaghetti pasta": 1,
-                            "Tomatoes": 1,
-                            "Olives": 1,
-                            "Capers": 1
-                        },
-                        "Techniques": {
-                            "Making tomato sauce with olives and capers": 1,
-                            "Cooking pasta al dente": 1
-                        },
-                        "Utensils": {
-                            "Large pot for boiling pasta": 1,
-                            "Skillet for making tomato sauce": 1
-                        }
-                    },
-                    "Caponata": 1,
-                    "Arancini": 1
-                }
-            },
-            "Sicilian cuisine": {
-                "Dishes": {
-                    "Pasta alla Norma": 1,
-                    "Arancini": 1,
-                    "Cannoli": 1,
-                    "Cassata": 1
-                }
-            }
-        }
-    }
-}
-"""
-)
-
 italian_cuisine_hierarchy = {
     "Cuisine: Italian": {
         "Regions": {
@@ -374,7 +268,8 @@ childslot_event_handlers = {'on_click': terminal_node_callback,
 }
 
 class ChildsPanelMixin(BaseChildsPanelMixin):
-    def get_childsslot(self, *args, **kwargs):
+    def get_childslots(self):
+
         return self.childslots
     
 ChildsPanelDiv = gen_Div_type(HCType.hcc_mutable_div, "HCCMutableDiv", TR.DivMixin,
@@ -418,20 +313,30 @@ class ChildSlotsPanel(ChildsPanelDiv):
                 )
                 for i in range(max_childs)
             ]
-        super().__init__(*args, **kwargs)
+        menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
+        super().__init__(childs = [menu_box],
+                         classes = "flex overflow-y-auto min-w-fit h-screen flex-col justify-between border-e bg-white"
+                         )
 
-        
-HierarchyNavigator = assign_id(HierarchyNavigator_TF(ChildsPanelType=ChildSlotsPanel))
+
+
+def childslots_panel_gen(event_handlers):
+    # Panel specific parameters like max_childs  go here
+    return ChildSlotsPanel(event_handlers,  
+                           max_childs=20,)
+
+VarLenghtList = assign_id(VarLenghtList_TF(SlotType = ShowEditTwsty_Slot))
+
+HierarchyNavigator = assign_id(HierarchyNavigator_TF(childslots_panel_gen))
 hn = HierarchyNavigator(italian_cuisine_hierarchy,
                         childslot_event_handlers,
                         max_depth = 13,
-                        max_childs=20,
                         key="myhinav")
 #hn_depth_selector = oj.HCCMutable.StackH(childs = hn.steps, twsty_tags=[space/x/4])
 
 wp_endpoint = oj.create_endpoint(key="hinav",
                               childs = [hn.breadcrumb_panel,
-                                        oj.Halign(hn.childpanel, content_type="mutable"),
+                                        oj.Halign(hn.childslots_panel, content_type="mutable"),
                                    
                                         hn
                                         ],

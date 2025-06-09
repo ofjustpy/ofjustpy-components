@@ -122,6 +122,7 @@ ChildSlotBtn_HCType = assign_id(
 #     pass
 
 class ChildsPanel(oj.HCCMutable.Div):
+    # modify on_child_slot_clicked shouldn't be the first argument
     def __init__(self,
                  on_child_slot_clicked,
                  *args,
@@ -300,6 +301,8 @@ class HiNav_MutableShellMixin:
         self.show_path = []
         self.arrrow_pos = 0
         self.show_depth = 1
+        # if True, then disable navigation
+        self.disabled = False
         session_manager = kwargs.get("session_manager")
 
         def target_of(item, stubStore=session_manager.stubStore):
@@ -331,7 +334,6 @@ class HiNav_MutableShellMixin:
 
     def fold(self, fold_idx, target_of):
         show_depth = self.show_depth
-        print ("fold up to fold idx = ", fold_idx)
         
         for i in range(show_depth, fold_idx, -1):
 
@@ -520,7 +522,6 @@ def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
             # TODO: Don't use MButton; use custom button type where both twsty and text is mutable
             self.max_depth = max_depth
             self.hierarchy = hierarchy
-
             self.callback_child_selected = callback_child_selected
             self.callback_childslot_mouseenter = callback_childslot_mouseenter
             self.callback_childslot_mouseleave = callback_childslot_mouseleave

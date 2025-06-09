@@ -5,6 +5,7 @@ advanced components built using ofjustpy framework
 from .htmlcomponents import EnumSelector, BiSplitView, Paginate, Dockbar
 from .component_mouseover_slideshow import SlideShow
 from .hierarchy_naviator import HierarchyNavigator_TF, HierarchyNavigator
-
+from .variable_length_list import VarListDiv
+from .variable_length_list_TF import TF as VarLenghtList_TF
 __version__ = "0.1.1"
 

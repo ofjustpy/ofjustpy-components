@@ -34,6 +34,28 @@ ArrowSpan_HCType = assign_id(
     )
 )
 
+class BreadcrumbPanelMixin:
+    def __init__(self,
+                 crumb_generator,
+                 on_click_eh,
+                 *args,
+                 **kwargs):
+
+        self.steps = [_ for _ in crumb_generator()]
+        kwargs['childs'] = self.steps
+
+
+    def get_step_at_idx(self, idx):
+        return self.steps[idx]
+
+    def update_step_text(self, idx, label_text, to_ms):
+        label = self.labels[idx]
+        label_ms = to_ms(label)
+        label_ms.text = label_textp
+        pass
+
+
+
 class BreadcrumbPanel(oj.HCCMutable.Div):
     def __init__(self, num_steps, on_click_eh):
         
@@ -125,68 +147,12 @@ ChildSlotBtn_HCType = assign_id(
 
 ChildSlotType = ChildSlotBtn_HCType
 
-# def ChildsPanel_TF(ChildSlotType):
-#     class ChildsPanel(oj.HCCMutable.Div):
-#         # modify on_child_slot_clicked shouldn't be the first argument
-#         def __init__(self,
-#                      childslot_event_handlers,
-#                      *args,
-#                      max_childs=20,
-#                      **kwargs):
-#             """
-#             event handler when childslot is clicked
-#             """
-
-
-#             self.childslots = [
-#                     ChildSlotType(
-#                         key=f"cbtn{i}",
-#                         text=str(i),
-#                         value=i,
-#                         classes="rounded-lg border border-2 border-indigo-500/50 px-4 py-1 text-sm font-medium text-indigo-500 uppercase leading-normal hover:bg-gradient-to-bl hover:from-gray-200 hover:to-gray-200 hover:via-gray-100/50 w-52 overflow-x-auto shadow shadow-indigo-200  hover:shadow-md hower:shadow-indigo-300 focus:bg-gradient-to-bl focus:border-indigo-500/50 focus:border",
-
-#                         extra_classes="border-s-[3px]",
-#                         **childslot_event_handlers
-
-#                     )
-#                     for i in range(max_childs)
-#                 ]
-
-
-#             menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
-
-
-
-#             super().__init__(childs = [menu_box],
-#                              classes = "flex overflow-y-auto min-w-fit h-screen flex-col justify-between border-e bg-white"
-#                              #twsty_tags = [max / W / "md", space / y / 2]
-
-#                              )
-
-
-#         def hide_all_slots(self, target_of):
-#             for cs in self.childslots:
-#                 shell = target_of(cs)
-#                 shell.add_twsty_tags(noop / hidden)
-
-#         def update_child_panel(self, showitem, target_of):
-#             for cs, clabel in zip(
-#                 self.childslots,
-#                 filter(lambda x: x != "_cref", showitem.keys()),
-#             ):
-#                 cs_shell = target_of(cs)
-#                 cs_shell.remove_twsty_tags(noop / hidden)
-#                 cs_shell.add_twsty_tags(db.f) # some bug about flex being removed if component is hidden 
-
-#                 cs_shell.text = clabel
-#                 cs_shell.value = clabel
-
-#             pass
-
-#     return ChildsPanel
 
 
 class BaseChildsPanelMixin:
+    def __init__(self, *args, **kwargs):
+        pass
+    
     def get_childslots(self):
         pass
     
@@ -205,87 +171,9 @@ class BaseChildsPanelMixin:
 
             cs_shell.text = clabel
             cs_shell.value = clabel
-            
+
         pass
-    
-class ChildsPanel(oj.HCCMutable.Div):
-    # modify on_child_slot_clicked shouldn't be the first argument
-    def __init__(self,
-                 childslot_event_handlers,
-                 *args,
-                 max_childs=20,
 
-                 **kwargs):
-        """
-        event handler when childslot is clicked
-        """
-
-        
-        self.childslots = [
-                ChildSlotBtn_HCType(
-                    key=f"cbtn{i}",
-                    text=str(i),
-                    value=i,
-                    classes="rounded-lg border border-2 border-indigo-500/50 px-4 py-1 text-sm font-medium text-indigo-500 uppercase leading-normal hover:bg-gradient-to-bl hover:from-gray-200 hover:to-gray-200 hover:via-gray-100/50 w-52 overflow-x-auto shadow shadow-indigo-200  hover:shadow-md hower:shadow-indigo-300 focus:bg-gradient-to-bl focus:border-indigo-500/50 focus:border",
-                    
-                    
-                    # twsty_tags=[
-                    #     db.f,
-                    #     ji.center,
-                    #     gap/2,
-                    #     bd/blue/500,
-                    #     bg/blue/50,
-                    #     pd/y/3,
-                    #     pd/x/4,
-                    #     fc/blue/700
-                        
-                    # ],
-                    extra_classes="border-s-[3px]",
-                    **childslot_event_handlers
-                    #on_click=on_child_slot_clicked,
-                )
-                for i in range(max_childs)
-            ]
-
-        # for cs_btn in self.childslots:
-        #     if on_child_slot_mouseenter:
-        #         cs_btn.on('mouseenter', on_child_slot_mouseenter)
-        #     if on_child_slot_mouseleave:
-        #         cs_btn.on('mouseleave', on_child_slot_mouseleave)
-
-        #     if on_child_slot_dblclick:
-        #         cs_btn.on('dblclick', on_child_slot_dblclick)
-                    
-
-        menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
-        
-
-            
-        super().__init__(childs = [menu_box],
-                         classes = "flex overflow-y-auto min-w-fit h-screen flex-col justify-between border-e bg-white"
-                         #twsty_tags = [max / W / "md", space / y / 2]
-                         
-                         )
-        
-
-    def hide_all_slots(self, target_of):
-        for cs in self.childslots:
-            shell = target_of(cs)
-            shell.add_twsty_tags(noop / hidden)
-
-    def update_child_panel(self, showitem, target_of):
-        for cs, clabel in zip(
-            self.childslots,
-            filter(lambda x: x != "_cref", showitem.keys()),
-        ):
-            cs_shell = target_of(cs)
-            cs_shell.remove_twsty_tags(noop / hidden)
-            cs_shell.add_twsty_tags(db.f) # some bug about flex being removed if component is hidden 
-
-            cs_shell.text = clabel
-            cs_shell.value = clabel
-            
-        pass
 
 
 # ================================ end ===============================
@@ -341,9 +229,9 @@ class HiNav_MutableShellMixin:
         """
         repopulate the child panel when selected-path gets updated
         """
-        self.staticCore.childpanel.hide_all_slots(target_of)
+        self.staticCore.childslots_panel.hide_all_slots(target_of)
         showitem = dget(self.staticCore.hierarchy, "/" + "/".join(self.show_path))
-        self.staticCore.childpanel.update_child_panel(showitem, target_of)
+        self.staticCore.childslots_panel.update_child_panel(showitem, target_of)
         
 
 
@@ -383,7 +271,6 @@ class HiNav_MutableShellMixin:
         pass
 
     def get_terminal_path(self, selected_child_label):
-        print("get_terminal_path = ", self.show_path, "  ", selected_child_label)
         dval = dget(
             self.staticCore.hierarchy,
             "/" + "/".join([*self.show_path, selected_child_label]),
@@ -398,7 +285,6 @@ class HiNav_MutableShellMixin:
         
     async def update_ui_on_child_select(self, selected_child_dbref, msg, target_of):
         terminal_path = self.get_terminal_path(selected_child_dbref.text)
-        print ("at the end = ", terminal_path[-5:])
         if '_cref' in terminal_path[-5:]:
             self.unfold(selected_child_dbref.text,
                         target_of
@@ -539,12 +425,12 @@ async def on_childslot_lockclick(dbref, msg, target_of, hinav=None):
     pass
 
 
-def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
-                          ChildsPanelType = ChildsPanel
+def HierarchyNavigator_TF(childslots_panel_gen,
+                          breadcrumb_panel_type=BreadcrumbPanel,
+
                           ):
     """
-    TF: class factory akin to template parametrization and specialization
-    
+    childslots_panel_gen: is a function that takes as input event_handlers and returns a ChildSlotsPanel
     breadcrumb_panel_type, childpanel_type: should be class that supports oj.htmlcomponent interface
        - childs
        - classes
@@ -559,11 +445,6 @@ def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
                      max_childs=20,
                      max_depth=6,
                      *args,
-
-                     # callback_childslot_mouseenter = None,
-                     # callback_childslot_mouseleave = None,
-                     # callback_childslot_dblclick = None,
-                     # callback_childslot_lockclick = None,
                      **kwargs,
                      ):
             """
@@ -589,9 +470,7 @@ def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
 
             
 
-            self.childpanel = ChildsPanelType(childslot_ieh,
-                                              max_childs=max_childs,
-                                              )
+            self.childslots_panel = childslots_panel_gen(childslot_ieh)
             self.breadcrumb_panel = breadcrumb_panel_type(max_depth,
                                                           lambda *args, hinav=self: on_arrow_click(*args, hinav))
 
@@ -605,4 +484,4 @@ def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
 
     return HierarchyNavigator
 
-HierarchyNavigator = assign_id(HierarchyNavigator_TF())
+#HierarchyNavigator = assign_id(HierarchyNavigator_TF())

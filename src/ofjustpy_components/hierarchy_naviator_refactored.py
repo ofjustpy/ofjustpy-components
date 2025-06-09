@@ -15,8 +15,6 @@ from ofjustpy.ui_styles import sty
 from ofjustpy import ui_styles
 from ofjustpy.Div_TF import gen_Div_type
 
-from functools import partial
-
 # require for arrow button which is special type of mutable
 # the text is mutable; but the twsty-tags remains the same
 
@@ -123,98 +121,14 @@ ChildSlotBtn_HCType = assign_id(
 #     await self.staticCore.callback_child_selected(terminal_path, msg)
 #     pass
 
-ChildSlotType = ChildSlotBtn_HCType
-
-# def ChildsPanel_TF(ChildSlotType):
-#     class ChildsPanel(oj.HCCMutable.Div):
-#         # modify on_child_slot_clicked shouldn't be the first argument
-#         def __init__(self,
-#                      childslot_event_handlers,
-#                      *args,
-#                      max_childs=20,
-#                      **kwargs):
-#             """
-#             event handler when childslot is clicked
-#             """
-
-
-#             self.childslots = [
-#                     ChildSlotType(
-#                         key=f"cbtn{i}",
-#                         text=str(i),
-#                         value=i,
-#                         classes="rounded-lg border border-2 border-indigo-500/50 px-4 py-1 text-sm font-medium text-indigo-500 uppercase leading-normal hover:bg-gradient-to-bl hover:from-gray-200 hover:to-gray-200 hover:via-gray-100/50 w-52 overflow-x-auto shadow shadow-indigo-200  hover:shadow-md hower:shadow-indigo-300 focus:bg-gradient-to-bl focus:border-indigo-500/50 focus:border",
-
-#                         extra_classes="border-s-[3px]",
-#                         **childslot_event_handlers
-
-#                     )
-#                     for i in range(max_childs)
-#                 ]
-
-
-#             menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
-
-
-
-#             super().__init__(childs = [menu_box],
-#                              classes = "flex overflow-y-auto min-w-fit h-screen flex-col justify-between border-e bg-white"
-#                              #twsty_tags = [max / W / "md", space / y / 2]
-
-#                              )
-
-
-#         def hide_all_slots(self, target_of):
-#             for cs in self.childslots:
-#                 shell = target_of(cs)
-#                 shell.add_twsty_tags(noop / hidden)
-
-#         def update_child_panel(self, showitem, target_of):
-#             for cs, clabel in zip(
-#                 self.childslots,
-#                 filter(lambda x: x != "_cref", showitem.keys()),
-#             ):
-#                 cs_shell = target_of(cs)
-#                 cs_shell.remove_twsty_tags(noop / hidden)
-#                 cs_shell.add_twsty_tags(db.f) # some bug about flex being removed if component is hidden 
-
-#                 cs_shell.text = clabel
-#                 cs_shell.value = clabel
-
-#             pass
-
-#     return ChildsPanel
-
-
-class BaseChildsPanelMixin:
-    def get_childslots(self):
-        pass
-    
-    def hide_all_slots(self, target_of):
-        for cs in self.get_childslots():
-            shell = target_of(cs)
-            shell.add_twsty_tags(noop / hidden)
-
-    def update_child_panel(self, showitem, target_of):
-        for cs, clabel in zip(self.get_childslots(),
-                              filter(lambda x: x != "_cref", showitem.keys()),
-                              ):
-            cs_shell = target_of(cs)
-            cs_shell.remove_twsty_tags(noop / hidden)
-            cs_shell.add_twsty_tags(db.f) # some bug about flex being removed if component is hidden 
-
-            cs_shell.text = clabel
-            cs_shell.value = clabel
-            
-        pass
-    
 class ChildsPanel(oj.HCCMutable.Div):
-    # modify on_child_slot_clicked shouldn't be the first argument
     def __init__(self,
-                 childslot_event_handlers,
+                 on_child_slot_clicked,
                  *args,
                  max_childs=20,
-
+                 on_child_slot_mouseenter =None,
+                 on_child_slot_mouseleave = None,
+                 on_child_slot_dblclick = None,
                  **kwargs):
         """
         event handler when childslot is clicked
@@ -241,20 +155,20 @@ class ChildsPanel(oj.HCCMutable.Div):
                         
                     # ],
                     extra_classes="border-s-[3px]",
-                    **childslot_event_handlers
-                    #on_click=on_child_slot_clicked,
+                    
+                    on_click=on_child_slot_clicked,
                 )
                 for i in range(max_childs)
             ]
 
-        # for cs_btn in self.childslots:
-        #     if on_child_slot_mouseenter:
-        #         cs_btn.on('mouseenter', on_child_slot_mouseenter)
-        #     if on_child_slot_mouseleave:
-        #         cs_btn.on('mouseleave', on_child_slot_mouseleave)
+        for cs_btn in self.childslots:
+            if on_child_slot_mouseenter:
+                cs_btn.on('mouseenter', on_child_slot_mouseenter)
+            if on_child_slot_mouseleave:
+                cs_btn.on('mouseleave', on_child_slot_mouseleave)
 
-        #     if on_child_slot_dblclick:
-        #         cs_btn.on('dblclick', on_child_slot_dblclick)
+            if on_child_slot_dblclick:
+                cs_btn.on('dblclick', on_child_slot_dblclick)
                     
 
         menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
@@ -289,6 +203,76 @@ class ChildsPanel(oj.HCCMutable.Div):
 
 
 # ================================ end ===============================
+
+async def on_childbtn_click(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
+    hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
+    await hinav_shell.update_ui_on_child_select(dbref, msg, target_of)
+
+    pass
+
+
+async def on_childbtn_mouseover(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
+    hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
+    await hinav_shell.update_ui_on_child_mouseover(dbref, msg, target_of)
+
+    pass
+
+
+async def on_childbtn_mouseenter(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
+    hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
+    await hinav_shell.update_ui_on_child_mouseenter(dbref, msg, target_of)
+
+    pass
+
+
+async def on_childbtn_mouseleave(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
+    hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
+    await hinav_shell.update_ui_on_child_mouseleave(dbref, msg, target_of)
+
+    pass
+
+
+async def on_childbtn_dblclick(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
+    hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
+    await hinav_shell.update_ui_on_child_dblclick(dbref, msg, target_of)
+
+    pass
+
+async def on_childbtn_lockclick(dbref, msg, target_of, hinav=None):
+    """
+    when a child  of the head is clicked
+    """
+    hinav_shell = target_of(hinav)
+    # update the breadcrumb with new head and populate the childslots with the current
+    # head's child
+    await hinav_shell.update_ui_on_child_lockclick(dbref, msg, target_of)
+
+    pass
 
 
 
@@ -341,9 +325,12 @@ class HiNav_MutableShellMixin:
         """
         repopulate the child panel when selected-path gets updated
         """
-        self.staticCore.childpanel.hide_all_slots(target_of)
-        showitem = dget(self.staticCore.hierarchy, "/" + "/".join(self.show_path))
-        self.staticCore.childpanel.update_child_panel(showitem, target_of)
+        childpanel_ms = target_of(self.staticCore.childpanel)
+        #self.staticCore.childpanel.hide_all_slots(target_of)
+        childpanel_ms.hide_all_slots()
+        #. childs at self.show_path
+        showitems = dget(self.staticCore.hierarchy, "/" + "/".join(self.show_path))
+        childpanel_ms.update_child_panel(showitems)
         
 
 
@@ -382,80 +369,115 @@ class HiNav_MutableShellMixin:
 
         pass
 
-    def get_terminal_path(self, selected_child_label):
-        print("get_terminal_path = ", self.show_path, "  ", selected_child_label)
+    async def update_ui_on_child_select(self, selected_child_dbref, msg, target_of):
+        selected_child_label = selected_child_dbref.text
+        dval = dget(
+            self.staticCore.hierarchy,
+            "/" + "/".join([*self.show_path, selected_child_label]),
+        )
+        if isinstance(dval, dict):
+            terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+            self.unfold(selected_child_label, target_of)
+            await self.staticCore.callback_child_selected(terminal_path, msg)
+        else:
+            terminal_path = (
+                f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
+            )
+            await self.staticCore.callback_child_selected(terminal_path, msg)
+
+        pass
+
+    # async def update_ui_on_child_mouseover(self, selected_child_label, msg, target_of):
+    #     dval = dget(
+    #         self.staticCore.hierarchy,
+    #         "/" + "/".join([*self.show_path, selected_child_label]),
+    #     )
+    #     # on mouseover simply invoke the callback but do not update the child panel
+    #     if isinstance(dval, dict):
+    #         terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+    #         await self.staticCore.callback_child_selected(terminal_path, msg)
+    #     else:
+    #         terminal_path = (
+    #             f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
+    #         )
+    #         await self.staticCore.callback_child_selected(terminal_path, msg)
+
+    #     pass
+
+    async def update_ui_on_child_mouseenter(self, selected_child_dbref, msg, target_of):
+        selected_child_label = selected_child_dbref.text
+
+        
         dval = dget(
             self.staticCore.hierarchy,
             "/" + "/".join([*self.show_path, selected_child_label]),
         )
         # on mouseover simply invoke the callback but do not update the child panel
         if isinstance(dval, dict):
-            return  f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+            terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+            await self.staticCore.callback_childslot_mouseenter(terminal_path, msg)
         else:
-            return  (
+            terminal_path = (
                 f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
             )
-        
-    async def update_ui_on_child_select(self, selected_child_dbref, msg, target_of):
-        terminal_path = self.get_terminal_path(selected_child_dbref.text)
-        print ("at the end = ", terminal_path[-5:])
-        if '_cref' in terminal_path[-5:]:
-            self.unfold(selected_child_dbref.text,
-                        target_of
-                        )
-        await self.staticCore.callback_childslot_eh('on_click',
-                                                    terminal_path,
-                                                    msg
-                                                    )
+            await self.staticCore.callback_childslot_mouseenter(terminal_path, msg)
 
         pass
 
-
-        
-    async def update_ui_on_child_mouseenter(self, selected_child_dbref, msg, target_of):
-        await self.staticCore.callback_childslot_eh('on_mouseenter',
-                                                    self.get_terminal_path(selected_child_dbref.text),
-                                                    msg
-                                                    )
-
-        pass
-    
-
-        
     async def update_ui_on_child_mouseleave(self, selected_child_dbref, msg, target_of):
-        await self.staticCore.callback_childslot_eh('on_mouseleave',
-                                                    self.get_terminal_path(selected_child_dbref.text),
-                                                    msg
-                                                    )            
+        selected_child_label = selected_child_dbref.text
+        dval = dget(
+            self.staticCore.hierarchy,
+            "/" + "/".join([*self.show_path, selected_child_label]),
+        )
+        # on mouseover simply invoke the callback but do not update the child panel
+        if isinstance(dval, dict):
+            terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+            await self.staticCore.callback_childslot_mouseleave(terminal_path, msg)
+        else:
+            terminal_path = (
+                f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
+            )
+            await self.staticCore.callback_childslot_mouseleave(terminal_path, msg)
 
         pass
 
 
-        
     async def update_ui_on_child_dblclick(self, selected_child_dbref, msg, target_of):
         selected_child_label = selected_child_dbref.text
-        await self.staticCore.callback_childslot_eh('on_dblclick',
-                                                    self.get_terminal_path(selected_child_dbref.text),
-                                                    msg
-                                                    )            
+        dval = dget(
+            self.staticCore.hierarchy,
+            "/" + "/".join([*self.show_path, selected_child_label]),
+        )
+        # on mouseover simply invoke the callback but do not update the child panel
+        if isinstance(dval, dict):
+            terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+            await self.staticCore.callback_childslot_dblclick(terminal_path, msg)
+        else:
+            terminal_path = (
+                f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
+            )
+            await self.staticCore.callback_childslot_dblclick(terminal_path, msg)
+
         pass
-
-
 
     async def update_ui_on_child_lockclick(self, selected_child_dbref, msg, target_of):
-        await self.staticCore.callback_childslot_eh('on_lockclick',
-                                                    self.get_terminal_path(selected_child_dbref.text),
-                                                    msg
-                                                    )            
+        selected_child_label = selected_child_dbref.text
+        dval = dget(
+            self.staticCore.hierarchy,
+            "/" + "/".join([*self.show_path, selected_child_label]),
+        )
+        # on mouseover simply invoke the callback but do not update the child panel
+        if isinstance(dval, dict):
+            terminal_path = f"""{"/" +"/".join([*self.show_path, selected_child_label]) + "/_cref"}"""
+            await self.staticCore.callback_childslot_lockclick(terminal_path, msg)
+        else:
+            terminal_path = (
+                f"""{"/" +"/".join([*self.show_path, selected_child_label])}"""
+            )
+            await self.staticCore.callback_childslot_lockclick(terminal_path, msg)
+
         pass
-
-
-    async def update_ui_on_child_mouseover(self, selected_child_dbref, msg, target_of):
-        await self.staticCore.callback_childslot_eh('on_mouseover',
-                                                    self.get_terminal_path(selected_child_dbref.text),
-                                                    msg
-                                                    )            
-        pass    
     
     
     
@@ -467,81 +489,10 @@ HinavBaseType = gen_Div_type(
 )
 
 
-# childslot event handlers
-async def on_childslot_click(dbref, msg, target_of, hinav=None):
-    """
-    when a child  of the head is clicked
-    """
-    hinav_shell = target_of(hinav)
-    # update the breadcrumb with new head and populate the childslots with the current
-    # head's child
-    await hinav_shell.update_ui_on_child_select(dbref, msg, target_of)
-
-    pass
-
-
-async def on_childslot_mouseover(dbref, msg, target_of, hinav=None):
-    """
-    when a child  of the head is clicked
-    """
-    hinav_shell = target_of(hinav)
-    # update the breadcrumb with new head and populate the childslots with the current
-    # head's child
-    await hinav_shell.update_ui_on_child_mouseover(dbref, msg, target_of)
-
-    pass
-
-
-async def on_childslot_mouseenter(dbref, msg, target_of, hinav=None):
-    """
-    when a child  of the head is clicked
-    """
-    hinav_shell = target_of(hinav)
-    # update the breadcrumb with new head and populate the childslots with the current
-    # head's child
-    await hinav_shell.update_ui_on_child_mouseenter(dbref, msg, target_of)
-
-    pass
-
-
-async def on_childslot_mouseleave(dbref, msg, target_of, hinav=None):
-    """
-    when a child  of the head is clicked
-    """
-    hinav_shell = target_of(hinav)
-    # update the breadcrumb with new head and populate the childslots with the current
-    # head's child
-    await hinav_shell.update_ui_on_child_mouseleave(dbref, msg, target_of)
-
-    pass
-
-
-async def on_childslot_dblclick(dbref, msg, target_of, hinav=None):
-    """
-    when a child  of the head is clicked
-    """
-    hinav_shell = target_of(hinav)
-    # update the breadcrumb with new head and populate the childslots with the current
-    # head's child
-    await hinav_shell.update_ui_on_child_dblclick(dbref, msg, target_of)
-
-    pass
-
-async def on_childslot_lockclick(dbref, msg, target_of, hinav=None):
-    """
-    when a child  of the head is clicked
-    """
-    hinav_shell = target_of(hinav)
-    # update the breadcrumb with new head and populate the childslots with the current
-    # head's child
-    await hinav_shell.update_ui_on_child_lockclick(dbref, msg, target_of)
-
-    pass
 
 
 def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
-                          ChildsPanelType = ChildsPanel
-                          ):
+                          childpanel_type=ChildsPanel):
     """
     TF: class factory akin to template parametrization and specialization
     
@@ -555,53 +506,32 @@ def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
     class HierarchyNavigator(HinavBaseType):
         def __init__(self,
                      hierarchy,
-                     childslot_event_handlers,
+                     callback_child_selected,
                      max_childs=20,
                      max_depth=6,
                      *args,
-
-                     # callback_childslot_mouseenter = None,
-                     # callback_childslot_mouseleave = None,
-                     # callback_childslot_dblclick = None,
-                     # callback_childslot_lockclick = None,
+                     slot_event_handlers = None,
                      **kwargs,
                      ):
             """
             callback_child_selected: notify caller when a child/member of a node in the hierarchy is selected
-            childslot_event_handlers: a dict of event handlers to be attached to the childslots
+            TODO: need a more general way to handle any callback.
             
             """
             # TODO: Don't use MButton; use custom button type where both twsty and text is mutable
             self.max_depth = max_depth
             self.hierarchy = hierarchy
-            # udeh : user defined event handler
-            self.childslot_udeh = childslot_event_handlers
-
-            # internal event handlers
-            childslot_ieh = {
-                'on_click': partial(on_childslot_click, hinav=self),
-                'on_mouseover': partial(on_childslot_mouseover, hinav=self),
-                'on_mouseenter': partial(on_childslot_mouseenter, hinav=self),
-                'on_mouseleave': partial(on_childslot_mouseleave, hinav=self),
-                'on_dblclick': partial(on_childslot_dblclick, hinav=self),
-                'on_lockclick': partial(on_childslot_lockclick, hinav=self),
-            }
-
-            
-
-            self.childpanel = ChildsPanelType(childslot_ieh,
+            key = kwargs.get('key')
+            self.childpanel = childpanel_type(key=f"child_panel_{key}",
                                               max_childs=max_childs,
+                                              slot_event_handlers = slot_event_handlers
+                                              
                                               )
             self.breadcrumb_panel = breadcrumb_panel_type(max_depth,
                                                           lambda *args, hinav=self: on_arrow_click(*args, hinav))
 
             super().__init__(*args, childs=[], **kwargs)
 
-
-        async def callback_childslot_eh(self, event_type, terminal_path, msg):
-            if event_type in self.childslot_udeh:
-                await self.childslot_udeh[event_type](terminal_path, msg)
-            
 
     return HierarchyNavigator
 

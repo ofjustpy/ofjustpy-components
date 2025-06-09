@@ -3,7 +3,10 @@
 from addict_tracking_changes import Dict
 import ofjustpy as oj
 from py_tailwind_utils import *
-from ofjustpy_components.hierarchy_naviator_refactored_try2 import HierarchyNavigator_TF, BaseChildsPanelMixin
+from ofjustpy_components.hierarchy_naviator_refactored_try4 import (HierarchyNavigator,
+                                                                    ChildsPanelInterface,
+                                                                    BreadcrumbPanelInterface
+                                                                    )
 import json
 from ofjustpy.htmlcomponents_impl import assign_id
 from ofjustpy.SHC_types import PassiveComponents as PC, ActiveComponents as AC
@@ -15,112 +18,6 @@ from ofjustpy import ui_styles
 from ofjustpy.Div_TF import gen_Div_type
 from ofjustpy.HC_TF import gen_HC_type
 app = oj.load_app()
-italian_cuisine_hierarchy = json.loads("""
-{
-    "Cuisine: Italian": {
-        "Regions": {
-            "Northern Italian cuisine": {
-                "Dishes": {
-                    "Risotto alla Milanese": {
-                        "Ingredients": {
-                            "Arborio rice": 1,
-                            "Saffron": 1,
-                            "Parmesan cheese": 1,
-                            "Chicken stock": 1
-                        },
-                        "Techniques": {
-                            "Toasting rice": 1,
-                            "Adding saffron": 1,
-                            "Gradually adding stock": 1,
-                            "Finishing with Parmesan cheese": 1
-                        },
-                        "Utensils": {
-                            "Risotto pan": 1,
-                            "Wooden spoon": 1
-                        }
-                    },
-                    "Osso Buco": 1,
-                    "Polenta": 1,
-                    "Tiramisu": 1
-                }
-            },
-            "Central Italian cuisine": {
-                "Dishes": {
-                    "Spaghetti alla Carbonara": {
-                        "Ingredients": {
-                            "Spaghetti pasta": 1,
-                            "Pancetta": 1,
-                            "Eggs": 1,
-                            "Pecorino Romano cheese": 1
-                        },
-                        "Techniques": {
-                            "Cooking pasta al dente": 1,
-                            "Making the sauce with eggs and cheese": 1,
-                            "Crisping pancetta": 1
-                        },
-                        "Utensils": {
-                            "Large pot for boiling pasta": 1,
-                            "Skillet for cooking pancetta and making sauce": 1
-                        }
-                    },
-                    "Fettuccine Alfredo": 1,
-                    "Bistecca alla Fiorentina": 1,
-                    "Panzanella": 1
-                }
-            },
-            "Southern Italian cuisine": {
-                "Dishes": {
-                    "Pizza Margherita": {
-                        "Ingredients": {
-                            "Pizza dough": 1,
-                            "Tomatoes": 1,
-                            "Mozzarella cheese": 1,
-                            "Basil": 1
-                        },
-                        "Techniques": {
-                            "Stretching and shaping the dough": 1,
-                            "Making tomato sauce": 1,
-                            "Topping with cheese and basil": 1
-                        },
-                        "Utensils": {
-                            "Pizza stone or baking sheet": 1,
-                            "Pizza peel": 1
-                        }
-                    },
-                    "Pasta alla Puttanesca": {
-                        "Ingredients": {
-                            "Spaghetti pasta": 1,
-                            "Tomatoes": 1,
-                            "Olives": 1,
-                            "Capers": 1
-                        },
-                        "Techniques": {
-                            "Making tomato sauce with olives and capers": 1,
-                            "Cooking pasta al dente": 1
-                        },
-                        "Utensils": {
-                            "Large pot for boiling pasta": 1,
-                            "Skillet for making tomato sauce": 1
-                        }
-                    },
-                    "Caponata": 1,
-                    "Arancini": 1
-                }
-            },
-            "Sicilian cuisine": {
-                "Dishes": {
-                    "Pasta alla Norma": 1,
-                    "Arancini": 1,
-                    "Cannoli": 1,
-                    "Cassata": 1
-                }
-            }
-        }
-    }
-}
-"""
-)
-
 italian_cuisine_hierarchy = {
     "Cuisine: Italian": {
         "Regions": {
@@ -343,6 +240,102 @@ italian_cuisine_hierarchy = {
     }
 }
 
+# ========================= breadcrumb panel =========================
+ArrowSpan_HCType = assign_id(
+    gen_HC_type(
+        HCType.mutable,
+        "Span",
+        TR.SpanMixin,
+        staticCoreMixins=[TR.TwStyMixin],
+        mutableShellMixins=[TR.HCTextMixin],
+        stytags_getter_func=lambda m=ui_styles: m.sty.span,
+    )
+)
+
+def crumb_generator(arrow_eh, max_steps):
+    house = oj.PD.Li(childs = [oj.PC.Div(classes="block transition hover:text-gray-700",
+                                             childs = [
+                                                 oj.PC.Span(classes="sr-only", text="home"),
+                                                 oj.icons.FontAwesomeIcon(label="faHouse",
+                                                                       classes="w-5 h-5")
+                                                 ]
+
+                                             )
+                           
+
+                           ]
+                 )
+        
+    arrows = [house, 
+                       *[oj.AD.Button(
+                key=f"btn{i}",
+                value=i,
+                childs = [oj.icons.FontAwesomeIcon(label="faAngleRight",
+                                                   classes="w-5 h-5 bg-white",
+                                                   )
+
+                          ],
+                           classes="bg-white p-0",
+                           
+                on_click=arrow_eh
+            )
+            for i in range(1, max_steps)]
+        ]
+    labels = [
+            ArrowSpan_HCType(key=f"label{i}", text="", twsty_tags=[mr / x / 0])
+            for i in range(max_steps)
+        ]
+    steps = [
+            oj.Mutable.StackH(
+                key=f"item{idx}",
+                childs=[labels[idx], arrows[idx]],
+                twsty_tags=[
+                mr / x / 0,
+                noop / hidden,
+                pd/2
+            ],
+        )
+            for idx in range(max_steps)
+        ]
+    for _ in steps:
+        yield _
+
+
+class BreadcrumbPanelMixin(BreadcrumbPanelInterface):
+    def __init__(self, *args, **kwargs):
+        pass
+    def get_step_at_idx(self, idx):
+        return self.steps[idx]
+
+    def update_step_text(self, idx, label_text, to_ms):
+        step = self.get_step_at_idx(idx)
+        # maybe there is more explicit way to get the label
+        # probably via keys
+        label_ms = to_ms(step).components[0]
+        # label = self.labels[idx]
+        # label_ms = to_ms(label)
+        label_ms.text = label_text
+        pass
+
+    def get_max_steps(self):
+        return len(self.steps)
+BreadcrumbPanellDiv = gen_Div_type(HCType.hcc_mutable_div, "HCCMutableDiv", TR.DivMixin,
+                   static_addon_mixins = [BreadcrumbPanelMixin]
+                   )
+
+class BreadcrumbPanel(BreadcrumbPanellDiv):
+    def __init__(self, arrow_eh,  *args, max_steps=6, **kwargs):
+        self.steps = [_ for _ in crumb_generator(arrow_eh, max_steps )]
+        crumb_list =  oj.HCCMutable.Ul(classes="flex items-center gap-1 text-sm text-gray-600",
+                                       childs=[*self.steps]
+                                       )
+        
+        super().__init__(childs = [crumb_list], **kwargs)
+        pass
+
+def breadcrumb_panel_gen(arrow_eh):
+    # breadcrumb related initializations go here
+    return BreadcrumbPanel(arrow_eh, max_steps=20)
 async def terminal_node_callback(spath, msg):
     print ('terminal node selected', spath)
     pass
@@ -373,9 +366,28 @@ childslot_event_handlers = {'on_click': terminal_node_callback,
 
 }
 
-class ChildsPanelMixin(BaseChildsPanelMixin):
-    def get_childsslot(self, *args, **kwargs):
+class ChildsPanelMixin(ChildsPanelInterface):
+    def __init__(self, *args, **kwargs):
+        pass
+    def get_childslots(self):
+
         return self.childslots
+
+    def hide_all_slots(self, target_of):
+        for cs in self.get_childslots():
+            shell = target_of(cs)
+            shell.add_twsty_tags(noop / hidden)
+
+    def update_child_panel(self, showitem, target_of):
+        for cs, clabel in zip(self.get_childslots(),
+                              filter(lambda x: x != "_cref", showitem.keys()),
+                              ):
+            cs_shell = target_of(cs)
+            cs_shell.remove_twsty_tags(noop / hidden)
+            cs_shell.add_twsty_tags(db.f) # some bug about flex being removed if component is hidden 
+
+            cs_shell.text = clabel
+            cs_shell.value = clabel    
     
 ChildsPanelDiv = gen_Div_type(HCType.hcc_mutable_div, "HCCMutableDiv", TR.DivMixin,
                    static_addon_mixins = [ChildsPanelMixin]
@@ -418,20 +430,29 @@ class ChildSlotsPanel(ChildsPanelDiv):
                 )
                 for i in range(max_childs)
             ]
-        super().__init__(*args, **kwargs)
+        menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
+        super().__init__(childs = [menu_box],
+                         classes = "flex overflow-y-auto min-w-fit h-screen flex-col justify-between border-e bg-white"
+                         )
 
-        
-HierarchyNavigator = assign_id(HierarchyNavigator_TF(ChildsPanelType=ChildSlotsPanel))
+
+
+def childslots_panel_gen(event_handlers):
+    # Panel specific parameters like max_childs  go here
+    return ChildSlotsPanel(event_handlers,  
+                           max_childs=20,)
+
 hn = HierarchyNavigator(italian_cuisine_hierarchy,
                         childslot_event_handlers,
-                        max_depth = 13,
-                        max_childs=20,
+                        childslots_panel_gen,
+                        breadcrumb_panel_gen,
+
                         key="myhinav")
 #hn_depth_selector = oj.HCCMutable.StackH(childs = hn.steps, twsty_tags=[space/x/4])
 
 wp_endpoint = oj.create_endpoint(key="hinav",
                               childs = [hn.breadcrumb_panel,
-                                        oj.Halign(hn.childpanel, content_type="mutable"),
+                                        oj.Halign(hn.childslots_panel, content_type="mutable"),
                                    
                                         hn
                                         ],

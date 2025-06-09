@@ -160,7 +160,6 @@ def on_undock_click(undock_btn, msg, target_of, dockbar=None):
 
 def on_dock_click(dock_btn, msg, target_of, dockbar=None):
     key = dock_btn.value
-    print("Dock btn clicked with msg.value = :", msg.value)
     
     #dock_shell = target_of(dockbar.wrapped_components[msg.value])
     dock_shell = target_of(dockbar.wrapped_components[dock_btn.value])

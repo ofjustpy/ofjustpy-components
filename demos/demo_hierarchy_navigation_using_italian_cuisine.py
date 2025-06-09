@@ -113,7 +113,7 @@ italian_cuisine_hierarchy = json.loads("""
 """
 )
 
-def terminal_node_callback(spath, msg):
+async def terminal_node_callback(spath, msg):
     print ('terminal node selected', spath)
     pass
 
@@ -127,7 +127,8 @@ wp_endpoint = oj.create_endpoint(key="hinav",
                                         hn
                                         ],
                               title="Ofjustpy navigator cuisine",
-                              twsty_tags=[space/y/4]
+                              twsty_tags=[space/y/4],
+                              csr_bundle_dir="skeletonui_bundle",
 
                               )
 
