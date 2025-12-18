@@ -7,7 +7,7 @@ from py_tailwind_utils import (
     pd,
     y,
     W,
-    max as twmax,
+    twmax,
     bg,
     green,
     rose,
