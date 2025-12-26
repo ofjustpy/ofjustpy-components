@@ -2,9 +2,9 @@
 drop down color not working in firefox
 """
 from py_tailwind_utils import *
-import ofjustpy as oj
+import kavya as kv
 from addict_tracking_changes import Dict
-import ofjustpy_components as ojx
+import kavya_components as kvx
 
 app = oj.load_app()
 
@@ -13,8 +13,9 @@ def on_btn_click(dbref, msg, target_of):
     
     pass
 view_directive= Dict()
-view_directive.part_viewer = lambda **kwargs: oj.HCCMutable.StackV(**kwargs)
-view_directive.full_viewer = lambda **kwargs: oj.HCCMutable.Div(**kwargs)
+#TODO: replace Mutable ==> HCCMutable
+view_directive.part_viewer = lambda **kwargs: kv.MD.StackV(**kwargs)
+view_directive.full_viewer = lambda **kwargs: kv.MD.Div(**kwargs)
     
 def gen_cs():
     for idx in range(0, 20):
