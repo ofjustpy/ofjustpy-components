@@ -37,6 +37,8 @@ from py_tailwind_utils import (
     screen,
     noop
 )
+from py_tailwind_utils import (primary
+                               )
 #from ofjustpy.htmlcomponents_impl import assign_id
 # from ofjustpy.htmlcomponents import (
 #     Mutable,
@@ -75,15 +77,22 @@ def BiSplitView(childs: List, hc_types, twsty_tags=[], **kwargs):
     parts = [[], []]
     for _ in childs:
         parts[idx % 2].append(_)
-        _.add_twsty_tags(bg_colors[(int(idx / 2)) % 2])
+        #. TODO: twsty_tags is not part of the core
+        # it belongs to mutableShell
+        # use post_mutableshell_create_callback
+        #_.add_twsty_tags(bg_colors[(int(idx / 2)) % 2])
 
         idx = idx + 1
 
+    #. part_viewer should be of HCCMutable type
+
     boxes = [
-        hc_types.part_viewer(childs=parts[0], twsty_tags=[W / "5/12", space / y / 2]),
-        hc_types.part_viewer(childs=parts[1], twsty_tags=[W / "5/12", space / y / 2]),
+        hc_types.part_viewer(key="part1", childs=parts[0], twsty_tags=[W / "5/12", space / y / 2]),
+        hc_types.part_viewer(key="part2", childs=parts[1], twsty_tags=[W / "5/12", space / y / 2]),
     ]
-    return hc_types.full_viewer(
+
+    # TODO: use hccmutable so that key is not required
+    return hc_types.full_viewer(key="full_viewer", 
         childs=boxes, twsty_tags=[db.f, jc.center, space / x / 4, *twsty_tags], **kwargs
     )
 
@@ -95,53 +104,53 @@ def BiSplitView(childs: List, hc_types, twsty_tags=[], **kwargs):
 #     return iter(lambda: tuple(itertools.islice(it, size)), ())
 
 
-# def Paginate(
-#     key,
-#     childs,
-#     page_container_gen,
-#     num_pages=10,
-#     chunk_size=100,
-#     twsty_tags=[],
-#     stackd_tags=[H / screen],
-#     **kwargs,
-# ):
-#     """
-#     There is a bug/gotcha w.r.t height of the stackD because
-#     stackD uses relative/absolute positioning.
-#     Specify exact height of the stackD used in the paginate section.
-#     """
-#     page_containers = [
-#         page_container_gen(cid, childs=achunk, twsty_tags=[W / full])
-#         for cid, achunk in enumerate(chunks(childs, chunk_size))
-#     ]
+def Paginate(
+    key,
+    childs,
+    page_container_gen,
+    num_pages=10,
+    chunk_size=100,
+    twsty_tags=[],
+    stackd_tags=[H / screen],
+    **kwargs,
+):
+    """
+    There is a bug/gotcha w.r.t height of the stackD because
+    stackD uses relative/absolute positioning.
+    Specify exact height of the stackD used in the paginate section.
+    """
+    page_containers = [
+        page_container_gen(cid, childs=achunk, twsty_tags=[W / full])
+        for cid, achunk in enumerate(chunks(childs, chunk_size))
+    ]
 
-#     all_pages = Mutable.StackD(
-#         key=f"{key}_stackD",
-#         childs=page_containers,
-#         twsty_tags=stackd_tags,
-#         height_anchor_key=page_containers[0].key,
-#     )
+    all_pages = Mutable.StackD(
+        key=f"{key}_stackD",
+        childs=page_containers,
+        twsty_tags=stackd_tags,
+        height_anchor_key=page_containers[0].key,
+    )
 
-#     def on_page_select(dbref, msg, target_of):
-#         selected_page = page_containers[int(msg.value)]
-#         shell_deck = target_of(all_pages)
-#         shell_deck.bring_to_front(selected_page.id)
+    def on_page_select(dbref, msg, target_of):
+        selected_page = page_containers[int(msg.value)]
+        shell_deck = target_of(all_pages)
+        shell_deck.bring_to_front(selected_page.id)
 
-#         pass
+        pass
 
-#     page_selector = Halign(
-#         Mutable.Slider(
-#             key=f"{key}_selector",
-#             num_iter=range(len(page_containers)),
-#             on_click=on_page_select,
-#             twsty_tags = []
-#         ),
-#         content_type="mutable",
-#     )
+    page_selector = Halign(
+        Mutable.Slider(
+            key=f"{key}_selector",
+            num_iter=range(len(page_containers)),
+            on_click=on_page_select,
+            twsty_tags = []
+        ),
+        content_type="mutable",
+    )
 
-#     return HCCMutable.StackV(
-#         childs=[page_selector, all_pages], twsty_tags=twsty_tags, **kwargs
-#     )
+    return HCCMutable.StackV(
+        childs=[page_selector, all_pages], twsty_tags=twsty_tags, **kwargs
+    )
 
 
 # # ============================== Dockbar =============================
