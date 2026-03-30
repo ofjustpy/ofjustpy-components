@@ -1,13 +1,27 @@
-import ofjustpy as oj
-from ofjustpy.ui_styles import sty
+import kavya as kv
+
+from functools import partial
+from kavya.type_factory.mutable_type_factory import (MutableDiv_StubWrappedTypeGen,
+                                                     MutableHC_StubWrappedTypeGen,
+                                                     )
+
+from kavya.type_factory.mutable_mixins import (ValueSharerMixin
+                                               )
+
+from kavya.type_factory.common_mixins import (HCTextMixin,
+                                              TwStyMixin
+                                               )
+
+from kavya.session_managment.uictx_id_assigner import assign_id
+from kavya.htmlcomponents import ui_styles
+from kavya.themes.ui_styles import sty
+from kavya.htmlcomponents.html_tag_mixins import (DivMixin,
+                                                  ButtonMixin
+                                                  )
+
 from py_tailwind_utils import *
-from ofjustpy_engine import HC_Div_type_mixins as TR
-from ofjustpy.Div_TF import gen_Div_type
-from ofjustpy_engine.HCType import HCType
+from .stackd import StackD
 
-from ofjustpy.HC_wrappers import StackH_Aligned
-
-from ofjustpy.htmlcomponents_impl import assign_id
 
 
 # all mutable variable declarations goes here
@@ -18,19 +32,27 @@ class SlideShow_MutableShellMixin:
         pass
 
 
-SlideShowBase = gen_Div_type(
-    HCType.mutable,
-    "Div",
-    TR.DivMixin,
-    mutable_shell_mixins=[SlideShow_MutableShellMixin],
-)
+# SlideShowBase = gen_Div_type(
+#     HCType.mutable,
+#     "Div",
+#     TR.DivMixin,
+#     mutable_shell_mixins=[SlideShow_MutableShellMixin],
+# )
 
+def stytags_getter_func():
+    return []
+SlideShowBase = MutableDiv_StubWrappedTypeGen("SlideShowBase",
+                                                   DivMixin,
+                                                   mutableShell_addonMixins = [SlideShow_MutableShellMixin],
+                                                   
+                                                   stytags_getter_func=stytags_getter_func
+                                                   )
 
-def on_mouseover_action(dbref, msg, target_of, slideshow=None):
+async def on_mouseover_action(dbref, msg, wp, request, slideshow=None):
     # a button has been clicked
     # get the spath/id and the value of the button
-
-    deck_shell = target_of(slideshow.slide_deck)
+    target_of = wp.session_manager.target_of
+    deck_shell = target_of(slideshow.slide_deck.id)
     slide = slideshow.slides[dbref.value]
     deck_shell.bring_to_front(slide.id)
 
@@ -53,11 +75,11 @@ class SlideShow(SlideShowBase):
             # create the panel for slide_info
             # The slide needs to be css-mutable
             # as it will hidden/unhidden via deck
-            slide = oj.HCCStatic.StackV(
+            slide = kv.HS.StackV(
                 key=f"slide_{sl}",
                 childs=[
-                    oj.PC.SubheadingBanner(slide_info[sl][0]),
-                    oj.PC.Halign(
+                    kv.PD.TitledPara(slide_info[sl][0], section_depth=5),
+                    kv.PD.Halign(
                         slide_info[sl][1],
                         align="start",
                         twsty_tags=[pd / x / 4],
@@ -66,7 +88,7 @@ class SlideShow(SlideShowBase):
             )
 
             # create the corresponding doorcard
-            doorcard = oj.AC.Button(
+            doorcard = kv.AC.Button(
                 key=f"{sl}_doorcard",
                 twsty_tags=[
                     fc / rose / 300,
@@ -82,14 +104,12 @@ class SlideShow(SlideShowBase):
                 ],
                 text=slide_info[sl][0],
                 value=sl,
-                on_click=lambda *args, slideshow=self: on_mouseover_action(
-                    *args, slideshow=slideshow
-                ),
+                on_click = partial(on_mouseover_action, slideshow=self),
             )
             doorcards.append(doorcard)
             self.slides[sl] = slide
 
-        doorcards_panel = oj.PC.StackG(
+        doorcards_panel = kv.PD.StackG(
             num_cols=1,
             num_rows=2,
             childs=doorcards,
@@ -102,7 +122,7 @@ class SlideShow(SlideShowBase):
             ],
         )
 
-        self.slide_deck = oj.Mutable.StackD(
+        self.slide_deck = StackD(
             key=f"deck_{key}",
             childs=self.slides.values(),
             twsty_tags=[W / "1/2"],
@@ -111,7 +131,10 @@ class SlideShow(SlideShowBase):
 
         # flx.one because we want both left and right div to expand and occupy
         # equal space
-        twsty_tags = conc_twtags(*sty.stackh, *kwargs.pop("twsty_tags", []), flxrsz.one)
+        twsty_tags = conc_twtags(*sty.stackh,
+                                 *kwargs.pop("twsty_tags", []),
+                                 flxrsz.one
+                                 )
 
         # super().__init__(*args, key=key,
         #                  childs=[StackH_Aligned(doorcards_panel, content_type="mutable"),

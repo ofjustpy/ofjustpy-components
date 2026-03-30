@@ -20,7 +20,7 @@ wp_endpoint = kv.create_endpoint(key="mutableDiv_SSRPage",
                                            ],
                                  skeleton_data_theme = "seafoam",
                                  rendering_type="MutableSSR",
-                                 ssr_bundle_dir = "ssr"
+                                 svelte_bundle_dir = "ssr"
                                  )
 kv.add_route("/", wp_endpoint)
 

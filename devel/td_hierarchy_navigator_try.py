@@ -1,0 +1,138 @@
+from py_tailwind_utils import *
+import kavya as kv
+from addict_tracking_changes import Dict
+import kavya_components as kvx
+from py_tailwind_utils import space, y
+
+app = kv.load_app()
+italian_cuisine_hierarchy = json.loads("""
+{
+    "Cuisine: Italian": {
+        "Regions": {
+            "Northern Italian cuisine": {
+                "Dishes": {
+                    "Risotto alla Milanese": {
+                        "Ingredients": {
+                            "Arborio rice": 1,
+                            "Saffron": 1,
+                            "Parmesan cheese": 1,
+                            "Chicken stock": 1
+                        },
+                        "Techniques": {
+                            "Toasting rice": 1,
+                            "Adding saffron": 1,
+                            "Gradually adding stock": 1,
+                            "Finishing with Parmesan cheese": 1
+                        },
+                        "Utensils": {
+                            "Risotto pan": 1,
+                            "Wooden spoon": 1
+                        }
+                    },
+                    "Osso Buco": 1,
+                    "Polenta": 1,
+                    "Tiramisu": 1
+                }
+            },
+            "Central Italian cuisine": {
+                "Dishes": {
+                    "Spaghetti alla Carbonara": {
+                        "Ingredients": {
+                            "Spaghetti pasta": 1,
+                            "Pancetta": 1,
+                            "Eggs": 1,
+                            "Pecorino Romano cheese": 1
+                        },
+                        "Techniques": {
+                            "Cooking pasta al dente": 1,
+                            "Making the sauce with eggs and cheese": 1,
+                            "Crisping pancetta": 1
+                        },
+                        "Utensils": {
+                            "Large pot for boiling pasta": 1,
+                            "Skillet for cooking pancetta and making sauce": 1
+                        }
+                    },
+                    "Fettuccine Alfredo": 1,
+                    "Bistecca alla Fiorentina": 1,
+                    "Panzanella": 1
+                }
+            },
+            "Southern Italian cuisine": {
+                "Dishes": {
+                    "Pizza Margherita": {
+                        "Ingredients": {
+                            "Pizza dough": 1,
+                            "Tomatoes": 1,
+                            "Mozzarella cheese": 1,
+                            "Basil": 1
+                        },
+                        "Techniques": {
+                            "Stretching and shaping the dough": 1,
+                            "Making tomato sauce": 1,
+                            "Topping with cheese and basil": 1
+                        },
+                        "Utensils": {
+                            "Pizza stone or baking sheet": 1,
+                            "Pizza peel": 1
+                        }
+                    },
+                    "Pasta alla Puttanesca": {
+                        "Ingredients": {
+                            "Spaghetti pasta": 1,
+                            "Tomatoes": 1,
+                            "Olives": 1,
+                            "Capers": 1
+                        },
+                        "Techniques": {
+                            "Making tomato sauce with olives and capers": 1,
+                            "Cooking pasta al dente": 1
+                        },
+                        "Utensils": {
+                            "Large pot for boiling pasta": 1,
+                            "Skillet for making tomato sauce": 1
+                        }
+                    },
+                    "Caponata": 1,
+                    "Arancini": 1
+                }
+            },
+            "Sicilian cuisine": {
+                "Dishes": {
+                    "Pasta alla Norma": 1,
+                    "Arancini": 1,
+                    "Cannoli": 1,
+                    "Cassata": 1
+                }
+            }
+        }
+    }
+}
+"""
+)
+
+async def terminal_node_callback(spath, msg):
+    print ('terminal node selected', spath)
+    pass
+
+hn = kvx.HierarchyNavigator(italian_cuisine_hierarchy, terminal_node_callback, key="myhinav", max_depth=8)
+#hn_depth_selector = oj.HCCMutable.StackH(childs = hn.steps, twsty_tags=[space/x/4])
+
+
+wp_endpoint = kv.create_endpoint(key="hierachy_navigator",
+
+                                 title="Ofjustpy navigator cuisine",
+                                 childs = [hn.breadcrumb_panel,
+                                        kv.HM.Halign(hn.childpanel, content_type="mutable"),
+                                   
+                                        hn
+                                           
+
+                                           ],
+                                 skeleton_data_theme = "seafoam",
+                                 rendering_type="MutableSSR",
+                                 ssr_bundle_dir = "ssr"
+                                 )
+
+kv.add_route("/", wp_endpoint)
+

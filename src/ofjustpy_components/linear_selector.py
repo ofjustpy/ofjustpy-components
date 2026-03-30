@@ -8,6 +8,10 @@ from kavya.type_factory.mutable_type_factory import (MutableDiv_StubWrappedTypeG
 from kavya.type_factory.mutable_mixins import (ValueSharerMixin
                                                )
 
+from kavya.type_factory.common_mixins import (TwStyMixin
+                                               )
+
+
 from kavya.htmlcomponents import ui_styles
 from kavya.htmlcomponents.html_tag_mixins import (DivMixin,
                                                   ButtonMixin
@@ -22,7 +26,17 @@ class MutableShell_LinearSelectorMixin:
         self.selected_circle = None
 
 def stytags_getter_func(ui_styles = ui_styles):
-    return []
+    # give a border around selector box
+    return [boxtopo.bd,
+            bd/primary/700,
+            bd/2,
+            bdr.md,
+            pd/x/2,
+            pd/y/1,
+            bg/primary/500,
+            W/fit,
+            space/x/1
+            ]
 
 
 LinearSelectorBase = MutableDiv_StubWrappedTypeGen("LinearSelector",
@@ -40,7 +54,6 @@ async def on_circle_click(dbref,
                           slider_core=None):
     target_of = wp.session_manager.target_of
     slider = target_of(slider_core.id)
-    print(slider)
 
     if slider.selected_circle is not None:
         slider.selected_circle.remove_twsty_tags(
@@ -80,7 +93,6 @@ Circle = assign_id(MutableHC_StubWrappedTypeGen("Circle",
 
 def event_prehook(on_event_callback):
     assert on_event_callback is not None
-    print("event_prehook inked with = ", on_event_callback)
     async def hook(dbref, msg, wp, request, on_event_callback = on_event_callback):
         msg["value"] = dbref.app_value
         return await on_event_callback(dbref, msg, wp, request)

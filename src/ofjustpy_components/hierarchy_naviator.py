@@ -1,47 +1,55 @@
-from ofjustpy.MHC_types import (
-    Label as MLabel,
-    HCCMutable,
-    Button as MButton,
-    HCCStatic,
-    StackH as MStackH,
-)
-import ofjustpy as oj
-from ofjustpy.htmlcomponents_impl import assign_id
-from ofjustpy.SHC_types import PassiveComponents as PC, ActiveComponents as AC
+import kavya as kv
+
+from functools import partial
+from kavya.type_factory.mutable_type_factory import (MutableDiv_StubWrappedTypeGen,
+                                                     MutableHC_StubWrappedTypeGen,
+                                                     )
+
+from kavya.type_factory.mutable_mixins import (ValueSharerMixin
+                                               )
+
+from kavya.type_factory.common_mixins import (HCTextMixin,
+                                              TwStyMixin
+                                               )
+
+from kavya.session_managment.uictx_id_assigner import assign_id
+from kavya.htmlcomponents import ui_styles
+from kavya.themes.ui_styles import sty
+from kavya.htmlcomponents.html_tag_mixins import (DivMixin,
+                                                  ButtonMixin,
+                                                  SpanMixin
+                                                  )
+
 from py_tailwind_utils import *
-from ofjustpy_engine import HC_Div_type_mixins as TR
-from ofjustpy_engine.HCType import HCType
-from ofjustpy.ui_styles import sty
-from ofjustpy import ui_styles
-from ofjustpy.Div_TF import gen_Div_type
+from .stackd import StackD
 
-# require for arrow button which is special type of mutable
-# the text is mutable; but the twsty-tags remains the same
+from py_tailwind_utils import *
 
-from ofjustpy.HC_TF import gen_HC_type
 
 # ============================= defaults =============================
-ArrowSpan_HCType = assign_id(
-    gen_HC_type(
-        HCType.mutable,
-        "Span",
-        TR.SpanMixin,
-        staticCoreMixins=[TR.TwStyMixin],
-        mutableShellMixins=[TR.HCTextMixin],
-        stytags_getter_func=lambda m=ui_styles: m.sty.span,
-    )
-)
+icon_color="bg-primary-500"
+ArrowSpan_HCType = kv.htmlcomponents.mutablehc_type_gen("Span",
+                                               make_text_mutable=True,
+                                               make_twtags_mutable=False)
 
-class BreadcrumbPanel(oj.HCCMutable.Div):
+
+class BreadcrumbPanel(kv.hccmutable._Div):
     def __init__(self, num_steps, on_click_eh):
         
         
         # first add house as root step with no text
-        house = oj.PD.Li(childs = [oj.PC.Div(classes="block transition hover:text-gray-700",
+        house = kv.PD.Li(childs = [kv.PD.Div(classes="block transition hover:text-gray-700",
                                              childs = [
-                                                 oj.PC.Span(classes="sr-only", text="home"),
-                                                 oj.icons.FontAwesomeIcon(label="faHouse",
-                                                                       classes="w-5 h-5")
+                                                 kv.PC.Span(classes="sr-only", text="home"),
+                                                 kv.PC.LucideIcon(label="house",
+                                                                         #size="20px",
+                                                                         width=6,
+                                                                         stroke_color=icon_color
+                                                                         #extra_classes = f"stroke-{icon_color} fill-{icon_color}",
+                                                                         )
+
+
+
                                                  ]
 
                                              )
@@ -51,14 +59,17 @@ class BreadcrumbPanel(oj.HCCMutable.Div):
                  )
         
         self.arrows = [house, 
-                       *[oj.AD.Button(
-                key=f"btn{i}",
-                value=i,
-                childs = [oj.icons.FontAwesomeIcon(label="faAngleRight",
-                                                   classes="w-5 h-5 bg-white",
-                                                   )
+                       *[kv.AD.Button(
+                           key=f"btn{i}",
+                           value=i,
+                           childs = [kv.PC.LucideIcon(label="triangle-right",
+                                                      #size="20px",
+                                                      width=6,
+                                                      stroke_color=icon_color
+                                                      #extra_classes = f"stroke-{icon_color} fill-{icon_color}",
+                                                      )
 
-                          ],
+                                     ],
                            classes="bg-white p-0",
                            
                 on_click=on_click_eh
@@ -70,7 +81,7 @@ class BreadcrumbPanel(oj.HCCMutable.Div):
             for i in range(num_steps)
         ]
         self.steps = [
-            oj.Mutable.StackH(
+            kv.MD.StackH(
                 key=f"item{idx}",
                 childs=[self.labels[idx], self.arrows[idx]],
                 twsty_tags=[
@@ -82,7 +93,7 @@ class BreadcrumbPanel(oj.HCCMutable.Div):
             for idx in range(num_steps)
         ]
 
-        crumb_list =  oj.HCCMutable.Ul(classes="flex items-center gap-1 text-sm text-gray-600",
+        crumb_list =  kv.HM.Ul(classes="flex items-center gap-1 text-sm text-gray-600",
                                        childs=[*self.steps]
                                        )
         
@@ -94,7 +105,7 @@ class BreadcrumbPanel(oj.HCCMutable.Div):
     
     def update_step_text(self, idx, label_text, to_ms):
         label = self.labels[idx]
-        label_ms = to_ms(label)
+        label_ms = to_ms(label.id)
         label_ms.text = label_text
     
 class ValueMixin:
@@ -105,23 +116,35 @@ class ValueMixin:
         self.value = kwargs.get("value")
 
         
-ChildSlotBtn_HCType = assign_id(
-    gen_HC_type(
-        HCType.mutable,
-        "Button",
-        TR.SpanMixin,
-        staticCoreMixins=[],
-        mutableShellMixins=[TR.TwStyMixin, TR.HCTextMixin, ValueMixin], # value, style, and text : all is mutable
-        stytags_getter_func=lambda m=ui_styles: m.sty.button,
-    )
-)
+# ChildSlotBtn_HCType = assign_id(
+#     gen_HC_type(
+#         HCType.mutable,
+#         "Button",
+#         TR.SpanMixin,
+#         staticCoreMixins=[],
+#         mutableShellMixins=[TR.TwStyMixin, TR.HCTextMixin, ValueMixin], # value, style, and text : all is mutable
+#         stytags_getter_func=lambda m=ui_styles: m.sty.button,
+#     )
+# )
 
+def get_childslotbtn_stytags():
+    return []
+_ChildSlotBtn = MutableHC_StubWrappedTypeGen("ChildSlotBtn",
+                                             SpanMixin,
+                                             mutableShellMixins=[TwStyMixin,
+                                                                 HCTextMixin,
+                                                                 ValueMixin
+                                                                 ],
+                                                   
+                                             stytags_getter_func=get_childslotbtn_stytags
+                                                   )
+ChildSlotBtn = assign_id(_ChildSlotBtn)
 # async def on_child_slot_mouseover(dbref, msg, to_mshell):
 #     print ("calling on_childslot_mouseover")
 #     await self.staticCore.callback_child_selected(terminal_path, msg)
 #     pass
 
-class ChildsPanel(oj.HCCMutable.Div):
+class ChildsPanel(kv.HM.Div):
     # modify on_child_slot_clicked shouldn't be the first argument
     def __init__(self,
                  on_child_slot_clicked,
@@ -137,7 +160,7 @@ class ChildsPanel(oj.HCCMutable.Div):
 
         
         self.childslots = [
-                ChildSlotBtn_HCType(
+                ChildSlotBtn(
                     key=f"cbtn{i}",
                     text=str(i),
                     value=i,
@@ -172,7 +195,8 @@ class ChildsPanel(oj.HCCMutable.Div):
                 cs_btn.on('dblclick', on_child_slot_dblclick)
                     
 
-        menu_box = oj.HCCMutable.Div(classes="mt-6 flex-1 space-y-4 h-screen", childs = self.childslots)
+        menu_box = kv.HM.Div(classes="mt-6 flex-1 space-y-4 h-screen",
+                             childs = self.childslots)
         
 
             
@@ -185,7 +209,7 @@ class ChildsPanel(oj.HCCMutable.Div):
 
     def hide_all_slots(self, target_of):
         for cs in self.childslots:
-            shell = target_of(cs)
+            shell = target_of(cs.id)
             shell.add_twsty_tags(noop / hidden)
 
     def update_child_panel(self, showitem, target_of):
@@ -193,7 +217,7 @@ class ChildsPanel(oj.HCCMutable.Div):
             self.childslots,
             filter(lambda x: x != "_cref", showitem.keys()),
         ):
-            cs_shell = target_of(cs)
+            cs_shell = target_of(cs.id)
             cs_shell.remove_twsty_tags(noop / hidden)
             cs_shell.add_twsty_tags(db.f) # some bug about flex being removed if component is hidden 
 
@@ -205,11 +229,12 @@ class ChildsPanel(oj.HCCMutable.Div):
 
 # ================================ end ===============================
 
-async def on_childbtn_click(dbref, msg, target_of, hinav=None):
+async def on_childbtn_click(dbref, msg, wp, request,  hinav=None):
     """
     when a child  of the head is clicked
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
     # update the breadcrumb with new head and populate the childslots with the current
     # head's child
     await hinav_shell.update_ui_on_child_select(dbref, msg, target_of)
@@ -217,11 +242,12 @@ async def on_childbtn_click(dbref, msg, target_of, hinav=None):
     pass
 
 
-async def on_childbtn_mouseover(dbref, msg, target_of, hinav=None):
+async def on_childbtn_mouseover(dbref, msg, wp, request, hinav=None):
     """
     when a child  of the head is clicked
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
     # update the breadcrumb with new head and populate the childslots with the current
     # head's child
     await hinav_shell.update_ui_on_child_mouseover(dbref, msg, target_of)
@@ -229,11 +255,12 @@ async def on_childbtn_mouseover(dbref, msg, target_of, hinav=None):
     pass
 
 
-async def on_childbtn_mouseenter(dbref, msg, target_of, hinav=None):
+async def on_childbtn_mouseenter(dbref, msg, wp, request,  hinav=None):
     """
     when a child  of the head is clicked
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
     # update the breadcrumb with new head and populate the childslots with the current
     # head's child
     await hinav_shell.update_ui_on_child_mouseenter(dbref, msg, target_of)
@@ -241,11 +268,12 @@ async def on_childbtn_mouseenter(dbref, msg, target_of, hinav=None):
     pass
 
 
-async def on_childbtn_mouseleave(dbref, msg, target_of, hinav=None):
+async def on_childbtn_mouseleave(dbref, msg, wp, request,  hinav=None):
     """
     when a child  of the head is clicked
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
     # update the breadcrumb with new head and populate the childslots with the current
     # head's child
     await hinav_shell.update_ui_on_child_mouseleave(dbref, msg, target_of)
@@ -253,22 +281,24 @@ async def on_childbtn_mouseleave(dbref, msg, target_of, hinav=None):
     pass
 
 
-async def on_childbtn_dblclick(dbref, msg, target_of, hinav=None):
+async def on_childbtn_dblclick(dbref, msg, wp, request,  hinav=None):
     """
     when a child  of the head is clicked
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
     # update the breadcrumb with new head and populate the childslots with the current
     # head's child
     await hinav_shell.update_ui_on_child_dblclick(dbref, msg, target_of)
 
     pass
 
-async def on_childbtn_lockclick(dbref, msg, target_of, hinav=None):
+async def on_childbtn_lockclick(dbref, msg, wp, request,  hinav=None):
     """
     when a child  of the head is clicked
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
     # update the breadcrumb with new head and populate the childslots with the current
     # head's child
     await hinav_shell.update_ui_on_child_lockclick(dbref, msg, target_of)
@@ -277,12 +307,13 @@ async def on_childbtn_lockclick(dbref, msg, target_of, hinav=None):
 
 
 
-def on_arrow_click(dbref, msg, target_of, hinav=None):
+async def on_arrow_click(dbref, msg, wp, request,  hinav=None):
     """
     marker on the breadcrumb trail is clicked.
     fold the breadcrumb trail to the marker
     """
-    hinav_shell = target_of(hinav)
+    target_of = wp.session_manager.target_of
+    hinav_shell = target_of(hinav.id)
 
     hinav_shell.fold(dbref.value, target_of)
     pass
@@ -305,13 +336,13 @@ class HiNav_MutableShellMixin:
         self.disabled = False
         session_manager = kwargs.get("session_manager")
 
-        def target_of(item, stubStore=session_manager.stubStore):
+        def target_of(item_id, stubStore=session_manager.stubStore):
             """
             item is a stub or staticCore
             supports item.id which is spath
             for the item
             """
-            return dget(stubStore, item.id).target
+            return dget(stubStore, item_id).target
 
 
         # make the root open
@@ -338,7 +369,7 @@ class HiNav_MutableShellMixin:
         for i in range(show_depth, fold_idx, -1):
 
             stepi = self.staticCore.breadcrumb_panel.get_step_at_idx(i-1)
-            stepi_shell = target_of(stepi)
+            stepi_shell = target_of(stepi.id)
             stepi_shell.add_twsty_tags(noop / hidden)
             self.show_path.pop()
             self.show_depth = self.show_depth - 1
@@ -355,7 +386,7 @@ class HiNav_MutableShellMixin:
             return
 
         step_last = self.staticCore.breadcrumb_panel.get_step_at_idx(self.show_depth)
-        step_shell = target_of(step_last)
+        step_shell = target_of(step_last.id)
         step_shell.remove_twsty_tags(noop / hidden)
         step_shell.add_twsty_tags(db.f)  # When hiding flex get taken out
         # eop: end-of-path
@@ -482,10 +513,19 @@ class HiNav_MutableShellMixin:
     
     
 
-HinavBaseType = gen_Div_type(
-    HCType.mutable, "Div", TR.DivMixin, mutable_shell_mixins=[HiNav_MutableShellMixin]
-)
+# HinavBaseType = gen_Div_type(
+#     HCType.mutable, "Div", TR.DivMixin, mutable_shell_mixins=[HiNav_MutableShellMixin]
+# )
 
+def slideshowbase_twsty_tags():
+    return []
+
+HiNavBase = MutableDiv_StubWrappedTypeGen("HiNavBase",
+                                                   DivMixin,
+                                                   mutableShell_addonMixins = [HiNav_MutableShellMixin],
+                                                   
+                                                   stytags_getter_func=slideshowbase_twsty_tags
+                                                   )
 
 
 
@@ -501,7 +541,7 @@ def HierarchyNavigator_TF(breadcrumb_panel_type=BreadcrumbPanel,
        - etc.
     
     """
-    class HierarchyNavigator(HinavBaseType):
+    class HierarchyNavigator(HiNavBase):
         def __init__(self,
                      hierarchy,
                      callback_child_selected,

@@ -18,11 +18,10 @@ from ofjustpy.Div_TF import gen_Div_type
 # require for arrow button which is special type of mutable
 # the text is mutable; but the twsty-tags remains the same
 
-from ofjustpy.HC_TF import gen_HC_type
-from ofjustpy.htmlcomponents import MDiv
+# from ofjustpy.HC_TF import gen_HC_type
+# from ofjustpy.htmlcomponents import MDiv
 
-import traceback
-import sys
+
 class ValueMixin:
     attr_tracked_keys = []
     domDict_tracked_keys = []
